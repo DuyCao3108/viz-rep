@@ -1,0 +1,107 @@
+
+
+objects
+    styles
+        DefaultStyle
+            "default style to use across chart of all type"
+            _set_spines
+            _set_mes_axis_title
+            _set_font
+            _set_color
+            _set_data_label
+            _set_legends
+
+            __post_init__
+
+    charts
+        Bar
+            set_default_style
+                DefaultStyle(self.fig, self.ax)
+            _set_bar_style
+
+            set_dim_axis_tick_label(position='top')
+            render
+
+
+        StackBar(Bar)
+        Stack100Bar(Bar)
+        GroupBar(Bar)
+        GroupStackBar(Bar)
+        DiverseBar(Bar)
+
+
+charts
+    bar
+        shapes
+            vertical
+                simple_bar
+                stack_bar
+                stack_100_bar
+                group_bar
+                group_stack_bar
+                group_stack_100_bar
+                diverge_bar
+            horizontal
+                h_simple_bar
+                h_stack_bar
+                h_stack_100_bar
+                h_group_bar
+                h_group_stack_bar
+                h_group_stack_100_bar
+                h_diverge_bar
+        config
+            common
+                dim_axis
+                    dim_as_date
+                mes_axis
+                data_label
+                bars
+                spines
+                colors
+                    themes
+                        categorical_10_pal
+                        categorical_5_pal
+                        categorical_3_pal
+                        gradient_pal
+                        diverse_pal
+                    use_gradient
+                    use_diverse
+                legends
+    line
+        shapes
+            simple_line
+            multi_line
+
+        config
+            dim_axis
+                dim_as_date
+            mes_axis
+            data_label
+                show_threshold
+                show_exact
+            legends
+                legends_on_line
+            line
+                smooth
+                size
+                shape
+                shape_at_threshold
+            dot
+                size
+                shape
+                color
+    special
+        waterfall
+        rank
+        sankey
+        tree
+            shape
+                decomposion_tree
+        lolipop
+            shape
+                h_2edge
+                h_2edge_w_dif
+            dot
+                size
+                shape
+                color
