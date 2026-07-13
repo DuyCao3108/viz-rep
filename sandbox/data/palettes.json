@@ -1,0 +1,58 @@
+{
+  "jpmorgan": {
+    "status": "ok",
+    "colors": [
+      "#B0E0FF",
+      "#0090F8",
+      "#80A030",
+      "#004888",
+      "#70C0FF",
+      "#7040B8",
+      "#005030",
+      "#E87000"
+    ],
+    "pages_scanned": 40,
+    "sources": [
+      "data/pdfs/jpmorgan__mi-guide-to-the-markets-us.pdf"
+    ]
+  },
+  "goldman_sachs": {
+    "status": "ok",
+    "colors": [
+      "#083060",
+      "#7098C8",
+      "#5090E0",
+      "#A0C058",
+      "#A84090",
+      "#C0D0F0",
+      "#60D0C8",
+      "#E07018"
+    ],
+    "pages_scanned": 19,
+    "sources": [
+      "data/pdfs/goldman_sachs__international-market-know-how_1q25.pdf",
+      "data/pdfs/goldman_sachs__us-market-pulse_feb2026.pdf"
+    ]
+  },
+  "bain": {
+    "status": "blocked",
+    "colors": [],
+    "attempted_sources": [
+      "https://www.bain.com/globalassets/noindex/2026/bain-report_global-private-equity-report-2026.pdf"
+    ]
+  },
+  "bcg": {
+    "status": "blocked",
+    "colors": [],
+    "attempted_sources": [
+      "https://web-assets.bcg.com/27/09/094ed67e49ffbd469d130d73842d/2026-gwr-may-2026-n.pdf"
+    ]
+  },
+  "mckinsey": {
+    "status": "blocked",
+    "colors": [],
+    "attempted_sources": [
+      "https://www.mckinsey.com/~/media/mckinsey/business%20functions/people%20and%20organizational%20performance/our%20insights/the%20state%20of%20organizations/2026/the-state-of-organizations-2026.pdf"
+    ]
+  }
+}

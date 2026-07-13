@@ -1,39 +1,42 @@
-"""Sandbox: same bar chart, same partial config override, two config styles side by side."""
-import json
-import matplotlib.pyplot as plt
+"""Sandbox: apply financial-firm chart palettes to a mock BI dataset.
 
-from src.dataclass_approach import Bar as DataclassBar, BarConfig
-from src.dict_approach import Bar as DictBar
+Palettes were pulled from each firm's real chart-dense report PDF via
+extract_palette.py (dominant vector-fill colors, weighted by area, grayscale
+ink dropped). See sandbox/data/palettes.json for full extraction metadata
+(sources, pages scanned, status per firm) and sandbox/output/palette_swatches.png
+for a visual preview.
+"""
+import numpy as np
 
-categories = ["Q1", "Q2", "Q3", "Q4"]
-values = [12, 19, 7, 15]
-
-# Only override what we care about: title + hide top/right spines.
-# Everything else should fall back to sane defaults.
-partial_override = {
-    "title": {"text": "Revenue by Quarter"},
-    "bar_color": "#2E7D32",
+THEMES: dict[str, list[str]] = {
+    "jpmorgan": ["#B0E0FF", "#0090F8", "#80A030", "#004888", "#70C0FF", "#7040B8", "#005030", "#E87000"],
+    "goldman_sachs": ["#083060", "#7098C8", "#5090E0", "#A0C058", "#A84090", "#C0D0F0", "#60D0C8", "#E07018"],
+    "bain": [],  # blocked: bain.com returns 403 to non-browser clients (see extract_palette.py)
+    "bcg": [],  # blocked: web-assets.bcg.com returns 403 to non-browser clients
+    "mckinsey": [],  # blocked: mckinsey.com connection times out for non-browser clients
 }
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
-# --- dataclass approach ---
-dc_config = BarConfig.from_dict(partial_override)
-DataclassBar(ax1, dc_config).render(categories, values)
-ax1.set_title(ax1.get_title() + "\n(dataclass config)")
+def generate_mock_data(seed: int = 0):
+    """1 main dimension (quarter), 1 legend dimension (sector, 7 values), 1 measure (allocation %)."""
+    rng = np.random.default_rng(seed)
 
-# --- dict approach ---
-DictBar(ax2, partial_override).render(categories, values)
-ax2.set_title(ax2.get_title() + "\n(dict config)")
+    periods = [f"Q{q} {y}" for y in (2024, 2025) for q in (1, 2, 3, 4)]  # main dimension, 8 values
+    sectors = [
+        "Technology", "Healthcare", "Financials", "Energy",
+        "Consumer", "Industrials", "Utilities", 'Education', 'Hospitality'
+    ]  # legend dimension, 7 values
 
-fig.tight_layout()
-fig.savefig("sandbox/output/comparison.png")
+    base = rng.uniform(5, 20, size=len(sectors))
+    walk = rng.normal(0, 1.2, size=(len(periods), len(sectors))).cumsum(axis=0)
+    values = np.clip(base + walk, 1, None)  # rows=periods, cols=sectors
 
-# JSON round-trip check: dataclass config can serialize/deserialize like a dict config can.
-dumped = json.dumps(dc_config.to_dict())
-reloaded = BarConfig.from_dict(json.loads(dumped))
-assert reloaded == dc_config
+    return periods, sectors, values
 
-print("Saved sandbox/output/comparison.png")
-print("dataclass config as dict:", dc_config.to_dict())
-print("dict config as merged:", DictBar(ax2, partial_override).config)
+
+if __name__ == "__main__":
+    periods, sectors, values = generate_mock_data()
+    print("periods:", periods)
+    print("sectors:", sectors)
+    print("values shape:", values.shape)
+    print("themes available:", {k: len(v) for k, v in THEMES.items()})
