@@ -5,6 +5,7 @@ The Economist Design System — colour + typography tokens.
 from __future__ import annotations
 
 import colorsys
+from typing import Literal
 
 DS_VERSION = "7.42.1"
 
@@ -205,6 +206,8 @@ COLOR_COLLECTIONS = {
         "blue":"#141F52"
     }
 }
+
+Pal = Literal["cate-55", "gradient2-blue", "gradient2-red", "diverse-blue-mint", "diverse-red-mint"]
 
 COLOR_THEMES: dict[str, list[str]] = {
     "cate-55": [

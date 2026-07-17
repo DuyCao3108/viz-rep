@@ -1,7 +1,7 @@
 from numpy.polynomial import test
 
 from plot.bar_1 import plot_bar
-from src.colors import COLOR_THEMES, plot_step_palette,get_color_code, make_step, plot_theme_palette
+from src.custom.colors import COLOR_THEMES, plot_step_palette,get_color_code, make_step, plot_theme_palette
 
 def test_color():
     save_path='./output/pal.png'

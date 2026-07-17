@@ -1,0 +1,21 @@
+bar.show_data_label(fmt=optional,thresh_hold=optional)
+    fmt: should be a typed one, contain predefine values to allow IDE to suggest to user; posible format right now can include
+        "whole-K", "whole-M", "whole-B"
+        "whole-K-thsandsep", "whole-M-thsandsep", "whole-B-thsandsep", "whole-thsandsep"
+        "%.2","%.3"
+
+    thresh_hold: hide value label below the thresh hold
+
+bar.set_theme(pal=optional,tone=optional)
+    pal: color pallete, should be a typed one, contain predefine values to allow IDE to suggest to user, check if COLOR_THEMES in color.py work fine
+        on charts that need 1 color only, set to the first value of the color pallete
+
+    tone: should be a typed one, contain predefine values to allow IDE to suggest to user,
+        plainly just a if else, to modify chart using private small,compact function designed in a way that present the tone correcly
+        such as:
+            tone: minimal
+                _hide_spines()
+                _hide_measure_axis()
+                _hide_ticks()
+            tone: science
+                _show_measure_axis_grid()

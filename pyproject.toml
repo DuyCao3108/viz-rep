@@ -10,5 +10,12 @@ dependencies = [
     "polars",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [tool.setuptools]
 packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -40,9 +40,8 @@ def generate_mock_data(seed: int = 0):
 def plot_bar():
     dataset = generate_mock_data()
     fig, ax = plt.subplots(figsize=(12, 6))
-    viz = Vizzy(fig, ax, dataset)
-    viz.line(dim="quarter", legend="sector", measure="allocation")
-    viz.artist.show_data_label()
+    line = Vizzy(fig, ax, dataset).line(dim="quarter", legend="sector", measure="allocation")
+    line.show_data_label()
     fig.savefig("./output/bar_1.png")
 
 
