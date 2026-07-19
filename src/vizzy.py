@@ -9,7 +9,11 @@ from __future__ import annotations
 
 from src.dataset import Dataset
 from src.charts.base import get_shape_class
+from src.charts.bar import SimpleBarH, SimpleBarV, StackBarH, StackBarV
+from src.charts.line import Line
 from src import charts  # noqa: F401 — runs @register_shape decorators
+
+from icecream import ic
 
 
 class Vizzy:
@@ -19,15 +23,23 @@ class Vizzy:
         self.dataset = dataset
 
     def bar(self, dim: str, measure: str, legend: str | None = None,
-             filters: dict | None = None, shape: str = "simple_bar"):
+             filters: dict | None = None, shape: str = "simple_bar")-> SimpleBarV:
         return self._build(shape, dim, measure, legend, filters)
 
     def barh(self, dim: str, measure: str, legend: str | None = None,
-              filters: dict | None = None, shape: str = "h_simple_bar"):
+              filters: dict | None = None, shape: str = "h_simple_bar")-> SimpleBarH:
+        return self._build(shape, dim, measure, legend, filters)
+
+    def stack_bar(self, dim: str, measure: str, legend: str | None = None,
+              filters: dict | None = None, shape: str = "stack_bar")-> StackBarV:
+        return self._build(shape, dim, measure, legend, filters)
+
+    def h_stack_bar(self, dim: str, measure: str, legend: str | None = None,
+              filters: dict | None = None, shape: str = "h_stack_bar") -> StackBarH:
         return self._build(shape, dim, measure, legend, filters)
 
     def line(self, dim: str, measure: str, legend: str | None = None,
-              filters: dict | None = None, shape: str = "line"):
+              filters: dict | None = None, shape: str = "line") -> Line:
         return self._build(shape, dim, measure, legend, filters)
 
     def _build(self, shape_name: str, dim: str, measure: str, legend, filters):

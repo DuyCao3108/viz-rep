@@ -211,7 +211,7 @@ Pal = Literal["cate-55", "gradient2-blue", "gradient2-red", "diverse-blue-mint",
 
 COLOR_THEMES: dict[str, list[str]] = {
     "cate-55": [
-        "chicago-55",
+        "chicago-30",
         "chicago-20",
         "dark-purple",
         "hong-kong-35",
@@ -221,9 +221,9 @@ COLOR_THEMES: dict[str, list[str]] = {
         "new-york-50",
         "dark-pink",
     ],
-    "gradient2-blue": ["chicago-20", "chicago-90"],
+    "gradient2-blue": ["chicago-30", "chicago-90"],
     "gradient2-red": ["tokyo-45", "tokyo-90"],
-    "diverse-blue-mint": ["chicago-45", "hong-kong-45"],
+    "diverse-blue-mint": ["chicago-30", "hong-kong-45"],
     "diverse-red-mint": ["tokyo-45", "hong-kong-45"],
 }
 

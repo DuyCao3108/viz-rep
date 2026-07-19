@@ -1,5 +1,16 @@
+from icecream import ic
+from typing import Literal
 
-def _generate_mock_data(seed: int = 0):
+SCALES = Literal['H','K','M','B']
+
+_SCALE_RANGES: dict[SCALES, tuple[float, float]] = {
+    "H": (10, 30),
+    "K": (10_000, 30_000),
+    "M": (10_000_000, 30_000_000),
+    "B": (10_000_000_000, 30_000_000_000),
+}
+
+def _gen_data_3dim(scale: SCALES = 'H', seed=0):
     """1 main dimension (quarter), 1 legend dimension (sector, 7 values), 1 measure (allocation %)."""
     import polars as pl
     import numpy as np
@@ -14,8 +25,11 @@ def _generate_mock_data(seed: int = 0):
         # 'Education', 'Hospitality'
     ]  # legend dimension, 7 values
 
-    base = rng.uniform(5, 20, size=len(sectors))
-    walk = rng.normal(0, 1.2, size=(len(periods), len(sectors))).cumsum(axis=0)
+    lo, hi = _SCALE_RANGES[scale]
+    stddev = (hi - lo) * 0.25  # same ratio as the original hardcoded (10, 30) / stddev=5
+
+    base = rng.uniform(lo, hi, size=len(sectors))
+    walk = rng.normal(0, stddev, size=(len(periods), len(sectors))).cumsum(axis=0)
     values = np.clip(base + walk, 1, None)  # rows=periods, cols=sectors
 
     df = pl.DataFrame(
@@ -31,14 +45,14 @@ def _simple_bar_basic(fig, ax):
     from src.dataset import Dataset, Dimension, Measure
     from src.vizzy import Vizzy
 
-    df = _generate_mock_data()
+    df = _gen_data_3dim()
     ds = Dataset(df,
             dimensions=[Dimension("quarter", "quarter")],
             measures=[Measure("allocation", "allocation")])
     bar = Vizzy(fig, ax, ds).bar(dim="quarter", measure="allocation")
     bar.show_data_label()
 
-def _generate_mock_revenue_data():
+def _gen_data_2dim():
     """Fixed (non-random) revenue-scale values chosen to visibly exercise
     both K-scaling/thousand-sep and threshold-hiding: 2 of 5 fall below the
     100K threshold, one scaled value (1,400K) is large enough to show comma
@@ -53,7 +67,7 @@ def _simple_bar_fmt_threshold(fig, ax):
     from src.dataset import Dataset, Dimension, Measure
     from src.vizzy import Vizzy
 
-    df = _generate_mock_revenue_data()
+    df = _gen_data_2dim()
     ds = Dataset(df,
             dimensions=[Dimension("region", "region")],
             measures=[Measure("revenue", "revenue")])
@@ -64,7 +78,7 @@ def _simple_bar_theme_defaults(fig, ax):
     from src.dataset import Dataset, Dimension, Measure
     from src.vizzy import Vizzy
 
-    df = _generate_mock_revenue_data()
+    df = _gen_data_2dim()
     ds = Dataset(df,
             dimensions=[Dimension("region", "region")],
             measures=[Measure("revenue", "revenue")])
@@ -76,7 +90,7 @@ def _simple_bar_theme_science(fig, ax):
     from src.dataset import Dataset, Dimension, Measure
     from src.vizzy import Vizzy
 
-    df = _generate_mock_data()
+    df = _gen_data_3dim()
     ds = Dataset(df,
             dimensions=[Dimension("quarter", "quarter")],
             measures=[Measure("allocation", "allocation")])
@@ -84,9 +98,67 @@ def _simple_bar_theme_science(fig, ax):
     bar.set_theme(pal="gradient2-blue", tone="science")
     bar.show_data_label()
 
+def _horizontal_bar_theme_defaults(fig, ax):
+    from src.dataset import Dataset, Dimension, Measure
+    from src.vizzy import Vizzy
+
+    df = _gen_data_2dim()
+    ds = Dataset(df,
+            dimensions=[Dimension("region", "region")],
+            measures=[Measure("revenue", "revenue")])
+    bar = Vizzy(fig, ax, ds).barh(dim="region", measure="revenue")
+    bar.set_theme()
+    bar.show_data_label(fmt="whole-k-thsep")
+
+def _stack_bar_basic(fig, ax):
+    from src.dataset import Dataset, Dimension, Measure
+    from src.vizzy import Vizzy
+
+    df = _gen_data_3dim()
+    ds = Dataset(df,
+            dimensions=[Dimension("quarter", "quarter"), Dimension("sector", "sector")],
+            measures=[Measure("allocation", "allocation")])
+    bar = Vizzy(fig, ax, ds).stack_bar(dim="quarter", measure="allocation", legend="sector")
+    bar.show_data_label()
+
+def _stack_bar_theme(fig, ax):
+    from src.dataset import Dataset, Dimension, Measure
+    from src.vizzy import Vizzy
+
+    df = _gen_data_3dim()
+    ds = Dataset(df,
+            dimensions=[Dimension("quarter", "quarter"), Dimension("sector", "sector")],
+            measures=[Measure("allocation", "allocation")])
+    bar = Vizzy(fig, ax, ds).stack_bar(dim="quarter", measure="allocation", legend="sector")
+    bar.set_theme()
+    bar.show_data_label(fmt="whole-thsep")
+
+def _h_stack_bar_basic(fig, ax):
+    from src.dataset import Dataset, Dimension, Measure
+    from src.vizzy import Vizzy
+
+    df = _gen_data_3dim()
+    ds = Dataset(df,
+            dimensions=[Dimension("quarter", "quarter"), Dimension("sector", "sector")],
+            measures=[Measure("allocation", "allocation")])
+    bar = Vizzy(fig, ax, ds).h_stack_bar(dim="quarter", measure="allocation", legend="sector")
+    bar.show_data_label()
+
+def _h_stack_bar_theme(fig, ax):
+    from src.dataset import Dataset, Dimension, Measure
+    from src.vizzy import Vizzy
+
+    df = _gen_data_3dim(scale='M')
+    ds = Dataset(df,
+            dimensions=[Dimension("quarter", "quarter"), Dimension("sector", "sector")],
+            measures=[Measure("allocation", "allocation")])
+    bar = Vizzy(fig, ax, ds).h_stack_bar(dim="quarter", measure="allocation", legend="sector")
+    bar.set_theme()
+    bar.show_data_label(fmt='whole-m')
+
 SCENARIOS = [
-    ("bar/vertical/simple_bar_basic", _simple_bar_basic),
-    ("bar/vertical/simple_bar_fmt_threshold", _simple_bar_fmt_threshold),
     ("bar/vertical/simple_bar_theme_defaults", _simple_bar_theme_defaults),
-    ("bar/vertical/simple_bar_theme_science", _simple_bar_theme_science),
+    ("bar/horizontal/h_simple_bar_theme_defaults", _horizontal_bar_theme_defaults),
+    ("bar/vertical/stack_bar_theme", _stack_bar_theme),
+    ("bar/horizontal/h_stack_bar_theme", _h_stack_bar_theme),
 ]

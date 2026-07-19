@@ -21,7 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 import matplotlib.pyplot as plt
-
+from icecream import ic
 from scenarios import ALL_SCENARIOS
 
 OUTPUT_DIR = Path(__file__).parent / "output"
@@ -42,6 +42,7 @@ def _render_contact_sheet(scenarios: list[tuple[str, object]]) -> None:
     fig, axes = plt.subplots(nrows, ncols, figsize=(12 * ncols, 6 * nrows), squeeze=False)
 
     for i, (name, build_fn) in enumerate(scenarios):
+        ic(name)
         ax = axes[i // ncols][i % ncols]
         build_fn(fig, ax)
 
