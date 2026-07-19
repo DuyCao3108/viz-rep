@@ -1,42 +1,78 @@
-"""Sandbox: apply financial-firm chart palettes to a mock BI dataset.
 
-Palettes were pulled from each firm's real chart-dense report PDF via
-extract_palette.py (dominant vector-fill colors, weighted by area, grayscale
-ink dropped). See sandbox/data/palettes.json for full extraction metadata
-(sources, pages scanned, status per firm) and sandbox/output/palette_swatches.png
-for a visual preview.
-"""
+import pandas as pd
+from icecream import ic
+from typing import Literal, Callable
+import polars as pl
 import numpy as np
+import duckdb
+from pathlib import Path
+from dataclasses import dataclass
+from src.read_data import NewDataset
 
-THEMES: dict[str, list[str]] = {
-    "jpmorgan": ["#B0E0FF", "#0090F8", "#80A030", "#004888", "#70C0FF", "#7040B8", "#005030", "#E87000"],
-    "goldman_sachs": ["#083060", "#7098C8", "#5090E0", "#A0C058", "#A84090", "#C0D0F0", "#60D0C8", "#E07018"],
-    "bain": [],  # blocked: bain.com returns 403 to non-browser clients (see extract_palette.py)
-    "bcg": [],  # blocked: web-assets.bcg.com returns 403 to non-browser clients
-    "mckinsey": [],  # blocked: mckinsey.com connection times out for non-browser clients
-}
+SANDBOX_DIR = Path(__file__).resolve().parent
+
+TABLE_NAME='fruits_order'
+PARQUET_PATH=f'{SANDBOX_DIR}/data/{TABLE_NAME}.parquet'
+
+@dataclass
+class Dimension:
+    name: str
+    column: str
+    dtype: Literal["category", "date"] = "category"
 
 
-def generate_mock_data(seed: int = 0):
-    """1 main dimension (quarter), 1 legend dimension (sector, 7 values), 1 measure (allocation %)."""
+@dataclass
+class Measure:
+    name: str
+    formula: str
+
+
+def gen_orders(n=1000, seed=0) -> pl.DataFrame:
+    import polars as pl
+    import numpy as np
+    FRUITS = ["apple","banana","orange","mango","grape","pineapple",
+                "watermelon","strawberry","kiwi","peach"]
+    VENDORS = [f"Vendor{i}" for i in range(1, 11)]
     rng = np.random.default_rng(seed)
+    statuses = ["pending", "shipped", "delivered", "cancelled"]
+    return pl.DataFrame({
+        "order_id": [f"ORD{i:05d}" for i in range(n)],
+        "cuid": rng.integers(1, 30, n),
+        "date": pl.date_range(pl.date(2025,1,1), pl.date(2025,12,31), eager=True).sample(n, with_replacement=True, seed=seed),
+        "status": rng.choice(statuses, n),
+        "price": np.round(rng.uniform(10, 500, n), 2),
+        "fruit": rng.choice(FRUITS, n),
+        "vendor": rng.choice(VENDORS, n),
+    })
 
-    periods = [f"Q{q} {y}" for y in (2024, 2025) for q in (1, 2, 3, 4)]  # main dimension, 8 values
-    sectors = [
-        "Technology", "Healthcare", "Financials", "Energy",
-        "Consumer", "Industrials", "Utilities", 'Education', 'Hospitality'
-    ]  # legend dimension, 7 values
+def main():
+    dataset=NewDataset(data_path=PARQUET_PATH)
+    dataset.set_measures(
+        [
+            Measure('#order', 'count(distinct order_id)', fmt='whole-thsep'),
+            Measure('#apple_order', 'count(distinct case when fruit="apple" then order_id else null end)', fmt='whole-K'),
+            Measure('%apple_order/order', f'{{#apple_order}}/{{#order}}', fmt='%.2'),
+            Measure('avg. price', 'avg(price)',fmt='whole')
+        ]
+    )
+    dataset.set_cal_col(
+        Dimension(name='month',transform="trunc(date,'mm')")
+    )
+    df1=dataset.query(
+        dim="month",
+        measure="% apple",
+        filters="price>100 and status='pending'",
+        sort_by={'mes':'des'}
+    )
+    ic(df1)
 
-    base = rng.uniform(5, 20, size=len(sectors))
-    walk = rng.normal(0, 1.2, size=(len(periods), len(sectors))).cumsum(axis=0)
-    values = np.clip(base + walk, 1, None)  # rows=periods, cols=sectors
-
-    return periods, sectors, values
-
-
-if __name__ == "__main__":
-    periods, sectors, values = generate_mock_data()
-    print("periods:", periods)
-    print("sectors:", sectors)
-    print("values shape:", values.shape)
-    print("themes available:", {k: len(v) for k, v in THEMES.items()})
+    df2=dataset.query(
+        dim="month",
+        measure="avg. price",
+        filters="status='delivered'",
+        legend="fruit",
+        sort_by={'mes':'des'}
+    )
+    ic(df2)
+if __name__=="__main__":
+    main()
