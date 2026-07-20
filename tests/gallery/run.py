@@ -45,6 +45,8 @@ def _render_contact_sheet(scenarios: list[tuple[str, object]]) -> None:
         ic(name)
         ax = axes[i // ncols][i % ncols]
         build_fn(fig, ax)
+        ax.set_title(name,loc='right')
+
 
     for i in range(n, nrows * ncols):
         axes[i // ncols][i % ncols].axis("off")
@@ -61,8 +63,8 @@ def main() -> None:
         print("No scenarios registered yet — add entries to tests/gallery/scenarios/*.py")
         return
 
-    for name, build_fn in ALL_SCENARIOS:
-        _render_individual(name, build_fn)
+    # for name, build_fn in ALL_SCENARIOS:
+    #     _render_individual(name, build_fn)
 
     _render_contact_sheet(ALL_SCENARIOS)
     print(f"Rendered {len(ALL_SCENARIOS)} scenario(s) to {OUTPUT_DIR}")

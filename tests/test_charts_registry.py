@@ -3,7 +3,14 @@
 import pytest
 
 import src.charts  # noqa: F401 — runs every @register_shape decorator
-from src.charts.bar import SimpleBarH, SimpleBarV, StackBarH, StackBarV
+from src.charts.bar import (
+    SimpleBarH,
+    SimpleBarV,
+    StackBar100H,
+    StackBar100V,
+    StackBarH,
+    StackBarV,
+)
 from src.charts.base import get_shape_class
 
 
@@ -14,6 +21,8 @@ from src.charts.base import get_shape_class
         ("h_simple_bar", SimpleBarH),
         ("stack_bar", StackBarV),
         ("h_stack_bar", StackBarH),
+        ("stack_100_bar", StackBar100V),
+        ("h_stack_100_bar", StackBar100H),
     ],
 )
 def test_get_shape_class_resolves_registered_name(name, expected_cls):

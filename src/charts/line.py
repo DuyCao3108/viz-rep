@@ -12,6 +12,7 @@ from __future__ import annotations
 import numpy as np
 
 from src.charts.base import register_shape
+from src.dataset import ResultDimension, ResultLegend, ResultMeasure
 
 
 @register_shape("line")
@@ -20,8 +21,18 @@ class Line:
         self.fig = fig
         self.ax = ax
         self._series_artists: dict = {}
+        self._dim_name = None
+        self._mes_name = None
+        self._lgd_name = None
 
-    def plot(self, categories: list, values: np.ndarray, legend_categories: list | None = None):
+    def plot(self, dimension: ResultDimension, measures: ResultMeasure, legends: ResultLegend | None = None):
+        self._dim_name = dimension.name
+        self._mes_name = measures.name
+        self._lgd_name = legends.name if legends is not None else None
+
+        categories, values = dimension.value, measures.value
+        legend_categories = legends.value if legends is not None else None
+
         self._categories = categories
         x = np.arange(len(categories))
         series_list, keys = self._normalize_series(values, legend_categories)
