@@ -59,10 +59,23 @@ class Vizzy:
               shape: str = "h_stack_100_bar") -> StackBar100H:
         return self._build(shape, dim, measure, legend, filters, sort_by)
 
-    def line(self, dim: str, measure: str, legend: str | None = None,
+    def line(self, dim: str, measure: str | list[str], legend: str | None = None,
               filters: str | None = None, sort_by: dict | None = None,
               shape: str = "line") -> Line:
-        return self._build(shape, dim, measure, legend, filters, sort_by)
+        measure_names = [measure] if isinstance(measure, str) else list(measure)
+        if len(measure_names) > 1 and legend is not None:
+            raise ValueError(
+                "Vizzy.line(): multi-measure mode (measure=list[str]) can't be "
+                "combined with a legend. Query one measure per line, or drop legend."
+            )
+        results = [
+            self.dataset.query(dim=dim, measure=name, legend=legend,
+                                filters=filters, sort_by=sort_by)
+            for name in measure_names
+        ]
+        chart = get_shape_class(shape)(fig=self.fig, ax=self.ax)
+        chart.plot(results[0].categories, [r.values for r in results], results[0].legend_categories)
+        return chart
 
     def _build(self, shape_name: str, dim: str, measure: str, legend, filters, sort_by=None):
         result = self.dataset.query(dim=dim, measure=measure, legend=legend,

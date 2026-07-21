@@ -7,3 +7,5 @@ from .bar_scenarios import SCENARIOS as _BAR_SCENARIOS
 from .line_scenarios import SCENARIOS as _LINE_SCENARIOS
 
 ALL_SCENARIOS: list[tuple[str, object]] = [*_BAR_SCENARIOS, *_LINE_SCENARIOS]
+BAR_SCENARIOS: list[tuple[str, object]] = [*_BAR_SCENARIOS]
+LINE_SCENARIOS: list[tuple[str, object]] = [*_LINE_SCENARIOS]

@@ -22,10 +22,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import matplotlib.pyplot as plt
 from icecream import ic
-from scenarios import ALL_SCENARIOS
+from scenarios import ALL_SCENARIOS, BAR_SCENARIOS, LINE_SCENARIOS
 
 OUTPUT_DIR = Path(__file__).parent / "output"
-
+SCENARIOS=ALL_SCENARIOS
 
 def _render_individual(name: str, build_fn) -> None:
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -59,15 +59,15 @@ def _render_contact_sheet(scenarios: list[tuple[str, object]]) -> None:
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if not ALL_SCENARIOS:
+    if not SCENARIOS:
         print("No scenarios registered yet — add entries to tests/gallery/scenarios/*.py")
         return
 
     # for name, build_fn in ALL_SCENARIOS:
     #     _render_individual(name, build_fn)
 
-    _render_contact_sheet(ALL_SCENARIOS)
-    print(f"Rendered {len(ALL_SCENARIOS)} scenario(s) to {OUTPUT_DIR}")
+    _render_contact_sheet(SCENARIOS)
+    print(f"Rendered {len(SCENARIOS)} scenario(s) to {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

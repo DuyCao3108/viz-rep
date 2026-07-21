@@ -28,7 +28,7 @@ from src.charts.base import register_shape
 from src.custom.colors import Pal, get_theme_colors
 from src.custom.formatting import (
     DataLabelFormat,
-    format_dimension,
+    _format_dimension,
     format_value,
     render_value,
     scale_factor,
@@ -114,21 +114,71 @@ class Bar:
         """Draws once per chart: a small note above the axes stating the unit
         data labels are shown in, e.g. "Sales (in Millions)"."""
         self.ax.text(
-            0.0, 1.02, text,
+            0.0,
+            1.02,
+            text,
             transform=self.ax.transAxes,
-            fontsize=9, color=color, ha="left", va="bottom",
+            fontsize=9,
+            color=color,
+            ha="left",
+            va="bottom",
         )
 
     def _before_plot(self):
         if self._dim_rf_obj.fmt is not None:
             self._dim_display_vals = [
-                format_dimension(v, self._dim_rf_obj.fmt) for v in self._dim_result_vals
+                _format_dimension(v, self._dim_rf_obj.fmt)
+                for v in self._dim_result_vals
             ]
+        pct_fmt = self._resolve_pct_fmt()
+        if pct_fmt is not None:
+            self._apply_pct_format(pct_fmt)
+        else:
+            # Always render _mes_display_vals to display-ready strings, even
+            # with no declared Measure.fmt (fmt=None still renders via
+            # render_value's plain-whole-number branch) — show_data_label()
+            # always uses _mes_display_vals as-is, never re-renders it.
+            self._format_measure(fmt=self._mes_rf_obj.fmt)
+
+    def _resolve_pct_fmt(self) -> DataLabelFormat | None:
+        """Percent fmt to auto-render into _mes_display_vals in _before_plot(),
+        or None to leave display vals as plain numbers. Driven by the
+        declared Measure.fmt (dataset-side), not self._mes_fmt (the separate,
+        explicit format_measure() call state)."""
+        mes_fmt = self._mes_rf_obj.fmt
+        return mes_fmt if mes_fmt is not None and mes_fmt.startswith("%") else None
+
+    def _pct_display_scale(self) -> float:
+        """Divisor applied before render_value() so its "%" branch (which
+        expects a 0-1 fraction) sees the right scale. Plain StackBar values
+        are assumed already 0-1 when %-formatted."""
+        return 1.0
+
+    def _apply_pct_format(self, fmt: DataLabelFormat) -> None:
+        """The _before_plot()-time percent auto-formatter: renders every raw
+        _mes_result_vals entry (of whatever shape) straight to a "NN.N%"
+        string via _pct_display_scale(), independent of _format_measure()'s
+        generic scale/render path. Kept separate from _format_measure() so
+        that an explicit, later format_measure() call always wins outright
+        (it resets _mes_pct_formatted itself) instead of this auto-detected
+        default silently re-asserting itself."""
+        scale = self._pct_display_scale()
+        self._mes_fmt = fmt
+        self._mes_dedup_fmt = False
+        self._mes_display_vals = np.vectorize(
+            lambda v: render_value(v / scale, fmt)
+        )(self._mes_result_vals)
+        self._mes_pct_formatted = True
 
     def _after_plot(self):
         pass
 
-    def plot(self, dimension: ResultDimension, measures: ResultMeasure, legends: ResultLegend | None = None):
+    def plot(
+        self,
+        dimension: ResultDimension,
+        measures: ResultMeasure,
+        legends: ResultLegend | None = None,
+    ):
         self._dim_name = dimension.name
         self._mes_name = measures.name
         self._lgd_name = legends.name if legends is not None else None
@@ -157,7 +207,50 @@ class Bar:
 
         return self
 
-    def format_measure(self, fmt: DataLabelFormat | None = None, dedup_fmt: bool = True) -> "Bar":
+    def format_measure(
+        self, fmt: DataLabelFormat | None = None, dedup_fmt: bool = True
+    ) -> "Bar":
+        """Public entry point: scales/renders _mes_display_vals from raw
+        _mes_result_vals and installs a matching tick formatter, so labels
+        and ticks always render in sync. Chainable — safe to call again
+        anytime after plot() (e.g. Vizzy(...).bar(...).format_measure(...)
+        .show_data_label())."""
+        return self._format_measure(fmt=fmt, dedup_fmt=dedup_fmt)
+
+    def _format_mes_display_vals(self, fmt: DataLabelFormat | None = None):
+        """Renders every _mes_result_vals entry to its display string,
+        element-wise and shape-preserving — works the same for SimpleBar's
+        1D array and StackBar's 2D (category x legend) array."""
+        factor = scale_factor(fmt)
+        self._mes_display_vals = np.vectorize(
+            lambda v: render_value(v, fmt=fmt, dedup_unit=self._mes_dedup_fmt)
+        )(self._mes_result_vals / factor)
+
+    def _format_mes_ticks(self, fmt: DataLabelFormat | None = None):
+        factor = scale_factor(fmt)
+
+        def _tick_formatter(x, pos):
+            return render_value(x / factor, fmt, dedup_unit=self._mes_dedup_fmt)
+
+        getattr(self.ax, f"{self._mes_axis()}axis").set_major_formatter(
+            FuncFormatter(_tick_formatter)
+        )
+
+    def _format_val_and_ticks(self, fmt: DataLabelFormat | None = None):
+        """Data-label values and measure-axis ticks are formatted together
+        so they can never drift out of sync with each other."""
+        self._format_mes_display_vals(fmt=fmt)
+        self._format_mes_ticks(fmt=fmt)
+
+    def _dedup_fmt(self, fmt: DataLabelFormat | None = None):
+        unit = unit_word(fmt)
+        self._set_subtitle(
+            f"{self._mes_name} (in {unit})" if self._mes_name else f"(in {unit})"
+        )
+
+    def _format_measure(
+        self, fmt: DataLabelFormat | None = None, dedup_fmt: bool = True
+    ) -> "Bar":
         """Sets the measure fmt used by show_data_label() and installs a
         matching FuncFormatter on the measure axis, so labels and ticks
         always render in sync. Post-hoc / render-only: bars are always drawn
@@ -171,22 +264,16 @@ class Bar:
         self._mes_dedup_fmt = dedup_fmt and unit_word(fmt) is not None
         self._mes_pct_formatted = False
 
-        factor = scale_factor(fmt)
-        self._mes_display_vals = self._mes_result_vals / factor
-
-        def _tick_formatter(x, pos):
-            return render_value(x / factor, fmt, dedup_unit=self._mes_dedup_fmt)
-
-        getattr(self.ax, f"{self._mes_axis()}axis").set_major_formatter(FuncFormatter(_tick_formatter))
+        self._format_val_and_ticks(fmt=fmt)
 
         if self._mes_dedup_fmt:
-            unit = unit_word(fmt)
-            self._set_subtitle(f"{self._mes_name} (in {unit})" if self._mes_name else f"(in {unit})")
+            self._dedup_fmt(fmt=fmt)
 
         return self
 
     def _chart_plot(self, dimension: list, measures: np.ndarray, legends=None) -> "Bar":
         return self
+
 
 class SimpleBar(Bar):
     """One bar per category, no legend split. Shared vertical/horizontal
@@ -196,8 +283,7 @@ class SimpleBar(Bar):
 
     def show_data_label(self, thresh_hold: float | None = None) -> None:
         labels = [
-            render_value(dv, self._mes_fmt, dedup_unit=self._mes_dedup_fmt)
-            if thresh_hold is None or rv >= thresh_hold else ""
+            dv if thresh_hold is None or rv >= thresh_hold else ""
             for rv, dv in zip(self._mes_result_vals, self._mes_display_vals)
         ]
         self.ax.bar_label(self.bars, labels=labels, label_type="edge", padding=3)
@@ -222,11 +308,13 @@ class SimpleBar(Bar):
         getattr(self.ax, f"set_{mes}lim")(0, mmax * 1.18 if mmax else 1)
         return self
 
+
 @register_shape("simple_bar")
 class SimpleBarV(SimpleBar):
     """Vertical single-series bar. design.txt's vertical/simple_bar."""
 
     DIM_AXIS = "x"
+
 
 @register_shape("h_simple_bar")
 class SimpleBarH(SimpleBar):
@@ -245,32 +333,9 @@ class StackBar(Bar):
 
     DEFAULT_THRESHOLD_PCT: float = 5
 
-    def _resolve_pct_fmt(self) -> DataLabelFormat | None:
-        """Percent fmt to auto-render into _mes_display_vals in _before_plot(),
-        or None to leave display vals as plain numbers. Driven by the
-        declared Measure.fmt (dataset-side), not self._mes_fmt (the separate,
-        explicit format_measure() call state)."""
-        mes_fmt = self._mes_rf_obj.fmt
-        return mes_fmt if mes_fmt is not None and mes_fmt.startswith("%") else None
-
-    def _pct_display_scale(self) -> float:
-        """Divisor applied before render_value() so its "%" branch (which
-        expects a 0-1 fraction) sees the right scale. Plain StackBar values
-        are assumed already 0-1 when %-formatted."""
-        return 1.0
-
-    def _before_plot(self):
-        super()._before_plot()
-        fmt = self._resolve_pct_fmt()
-        if fmt is not None:
-            scale = self._pct_display_scale()
-            self._mes_display_vals = np.array(
-                [[render_value(v / scale, fmt) for v in row] for row in self._mes_result_vals],
-                dtype=object,
-            )
-            self._mes_pct_formatted = True
-
-    def _chart_plot(self, dimension: list, measures: np.ndarray, legends: list | None = None):
+    def _chart_plot(
+        self, dimension: list, measures: np.ndarray, legends: list | None = None
+    ):
         if measures.ndim != 2:
             raise ValueError(
                 "StackBar expects one value per category per legend category. "
@@ -319,18 +384,21 @@ class StackBar(Bar):
             raw_segment = self._mes_result_vals[:, j]
             display_segment = self._mes_display_vals[:, j]
             pct_segment = np.divide(
-                raw_segment * 100, row_totals,
-                out=np.zeros_like(raw_segment, dtype=float), where=row_totals != 0,
+                raw_segment * 100,
+                row_totals,
+                out=np.zeros_like(raw_segment, dtype=float),
+                where=row_totals != 0,
             )
             labels = [
-                (dv if self._mes_pct_formatted
-                 else render_value(dv, self._mes_fmt, dedup_unit=self._mes_dedup_fmt))
+                dv
                 if (thresh_hold is None or rv >= thresh_hold)
                 and (thresh_hold_pct is None or pct >= thresh_hold_pct)
                 else ""
                 for rv, dv, pct in zip(raw_segment, display_segment, pct_segment)
             ]
-            self.ax.bar_label(container, labels=labels, label_type="center", color="white")
+            self.ax.bar_label(
+                container, labels=labels, label_type="center", color="white"
+            )
 
         if show_total:
             self._show_total_label(thresh_hold=thresh_hold)
@@ -339,7 +407,8 @@ class StackBar(Bar):
         raw_totals = self._mes_result_vals.sum(axis=1)
         total_labels = [
             format_value(rv, self._mes_fmt, dedup_unit=self._mes_dedup_fmt)
-            if thresh_hold is None or rv >= thresh_hold else ""
+            if thresh_hold is None or rv >= thresh_hold
+            else ""
             for rv in raw_totals
         ]
         self.ax.bar_label(
@@ -403,13 +472,16 @@ class StackBar100(StackBar):
     def _before_plot(self):
         row_totals = self._mes_result_vals.sum(axis=1, keepdims=True)
         normalized = np.divide(
-            self._mes_result_vals * 100, row_totals,
-            out=np.zeros_like(self._mes_result_vals), where=row_totals != 0,
+            self._mes_result_vals * 100,
+            row_totals,
+            out=np.zeros_like(self._mes_result_vals),
+            where=row_totals != 0,
         )
         self._mes_result_vals = normalized
-        # _mes_display_vals is set below, by StackBar._before_plot()'s percent
-        # formatter (via super()), which always fires for StackBar100 and
-        # must run against the now-normalized 0-100 result vals.
+        # _mes_display_vals is set below, by Bar._before_plot()'s percent
+        # formatter (via super()), which always fires for StackBar100 (see
+        # _resolve_pct_fmt() above) and must run against the now-normalized
+        # 0-100 result vals.
         super()._before_plot()
 
     def show_data_label(
@@ -422,7 +494,9 @@ class StackBar100(StackBar):
         off by default — a stack that always sums to 100 doesn't need it
         called out. Still available via show_total=True."""
         super().show_data_label(
-            thresh_hold=thresh_hold, thresh_hold_pct=thresh_hold_pct, show_total=show_total
+            thresh_hold=thresh_hold,
+            thresh_hold_pct=thresh_hold_pct,
+            show_total=show_total,
         )
 
 

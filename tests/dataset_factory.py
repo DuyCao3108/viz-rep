@@ -52,6 +52,37 @@ def _gen_orders(n=1000, seed=0) -> pl.DataFrame:
         "vendor": rng.choice(VENDORS, n),
     })
 
+def _gen_orders_smooth(n=1000, seed=0, scale: SCALES = "H") -> pl.DataFrame:
+    import polars as pl
+    import numpy as np
+    FRUITS = ["apple","banana","orange","mango","grape","pineapple",
+                "watermelon","strawberry","kiwi","peach"]
+    VENDORS = [f"Vendor{i}" for i in range(1, 11)]
+    rng = np.random.default_rng(seed)
+    statuses = ["pending", "shipped", "delivered", "cancelled"]
+    lo, hi = _SCALE_RANGES[scale]
+
+    dates = pl.date_range(pl.date(2025,1,1), pl.date(2025,12,31), eager=True).sample(n, with_replacement=True, seed=seed)
+    df = pl.DataFrame({"date": dates})
+    month = df["date"].dt.month().to_numpy()
+    week = df["date"].dt.week().to_numpy()
+
+    month_factor = 1 + rng.normal(0, 0.15, 12)[month - 1]
+    week_factor = 1 + rng.normal(0, 0.30, 53)[week - 1]
+
+    base_price = rng.uniform(lo, hi, n)
+    price = np.round(base_price * month_factor * week_factor, 2)
+
+    return pl.DataFrame({
+        "order_id": [f"ORD{i:05d}" for i in range(n)],
+        "cuid": rng.integers(1, 30, n),
+        "date": dates,
+        "status": rng.choice(statuses, n),
+        "price": price,
+        "fruit": rng.choice(FRUITS, n),
+        "vendor": rng.choice(VENDORS, n),
+    })
+
 def _gen_data_3dim(scale: SCALES = "H", seed=0, ndim=7):
     """1 main dimension (quarter), 1 legend dimension (sector, 7 values), 1 measure (allocation %)."""
     import numpy as np

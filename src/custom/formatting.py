@@ -71,7 +71,7 @@ def format_value(
     return render_value(value / scale_factor(fmt), fmt, dedup_unit)
 
 
-def format_dimension(value, fmt: DimensionFormat | None = None) -> str:
+def _format_dimension(value, fmt: DimensionFormat | None = None) -> str:
     """fmt=None: passthrough, str(value) — most dimensions won't declare a
     fmt. Otherwise fmt implies a date bucket; raises TypeError if value isn't
     a date/datetime."""

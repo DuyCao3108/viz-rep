@@ -10,7 +10,6 @@ todo
     test-multi dataset for each type
 
 
-
     style-fonts theme
     style-adjust color pallete
     style-more tones
@@ -21,25 +20,25 @@ todo
     barstack-calculate threshold, base on %optimal display (>=5 %)
 
 
-    stackbar100
+    line
+        line-ytick % not synced with data label
+        grid-dot, add vertical
+        legend-on line
+        scale zoom
+        trendline
+        line-dot style
+        data label-mode: first/last; min/max;
 
 
+    legends
 
+
+    dataset
+        done-faster compute (x10 speed): import-mode materialization + query caching + approx_count_distinct guidance
+
+
+    bar-number format
+        formatting
 
 
 scale
-
-
-
-    threshold_pct:
-        for StackBar, in show_data_label, it can receive arg thresh_hold_pct, set default to
-    3.5; then it behave like thresh_hold, and hide values that is <3.5% of its parent total-per bar (or X %
-    set by user); so those 2 are actually the same, both condition must work, if any of them are set; with
-    pct ont will have a default value, let that default value stay on top of stackbar class to easily see
-    it;
-
-    pct formatter:
-        -work at before plot func
-        -work for StackBar classes only
-        -work default for stackbar100, or if measure has fmt %
-        -call rendervalue, and assigned new formated vlaues int _mes_display_vals; keep _mes_result_vals intact -> this should be number/decimal, for computation and chart scale purpose; only the dispay vals is used to display coressponding

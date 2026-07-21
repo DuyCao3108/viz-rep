@@ -12,6 +12,16 @@ measures are SQL aggregates, filters are a raw SQL WHERE-clause string —
 query() turns all of that into one DuckDB SQL query, then reshapes the
 result into the same QueryResult/ResultDimension/ResultMeasure/ResultLegend
 shapes the chart layer already consumes.
+
+Performance note (import mode): the first query() call materializes the
+parquet file into a native in-memory DuckDB table once; every subsequent
+query() reuses that table instead of re-decoding the file from disk, so one
+Dataset queried many times (a gallery run, a multi-measure line chart) pays
+the file-decode cost once, not per call. If production queries commonly
+filter on one column (date range, region, ...), Hive-partitioning the
+source parquet by that column upstream lets DuckDB skip whole files before
+this table is even built — a data-prep concern, not something Dataset
+itself does.
 """
 
 from __future__ import annotations
@@ -55,6 +65,13 @@ class Measure:
     formula: str  # raw SQL aggregate expression; may reference other measures via "{other_name}"
     fmt: DataLabelFormat | None = None
 
+    # For high-cardinality distinct counts (e.g. count(distinct customer_id)
+    # over millions of rows), prefer DuckDB's approx_count_distinct(...) —
+    # a HyperLogLog-based approximation that's dramatically cheaper than an
+    # exact count(distinct ...) at large scale. No Dataset changes needed:
+    # formula is raw SQL, so this is just a different function call, e.g.
+    # Measure("distinct_customers", "approx_count_distinct(customer_id)").
+
 
 @dataclass
 class ResultArray:
@@ -93,17 +110,35 @@ class QueryResult:
 
 
 class Dataset:
-    def __init__(self, path: str | Path) -> None:
+    def __init__(
+        self,
+        path: str | Path,
+        threads: int | None = None,
+        memory_limit: str | None = None,
+    ) -> None:
         """Loads exactly one parquet file — nothing else. Every column
         becomes a dimension automatically (see _discover_dimensions());
         measures and calculated columns are always declared afterward via
         add_measure()/set_measures()/set_cal_col(), since DuckDB has no way
-        to infer what aggregation or derived expression you want."""
+        to infer what aggregation or derived expression you want.
+
+        `threads`/`memory_limit` are optional DuckDB connection tuning
+        knobs (PRAGMA threads / memory_limit) — left unset by default so
+        behavior matches DuckDB's own defaults; set them explicitly if a
+        production deployment needs a pinned thread count or a memory cap."""
         self.path = Path(path)
         self._con = duckdb.connect()
+        if threads is not None:
+            self._con.sql(f"PRAGMA threads={int(threads)}")
+        if memory_limit is not None:
+            self._con.sql(f"PRAGMA memory_limit='{memory_limit}'")
         self._dims: dict[str, Dimension] = {}
         self._measures: dict[str, Measure] = {}
         self._discover_dimensions()
+
+        # Import-mode materialization state — see _materialize()/_source_sql().
+        self._materialized = False
+        self._query_cache: dict[tuple, QueryResult] = {}
 
         # Scratch state for the in-flight query() call — see query().
         self._dim_obj: Dimension | None = None
@@ -134,6 +169,7 @@ class Dataset:
 
     def add_dimension(self, dim: Dimension) -> None:
         self._dims[dim.name] = dim
+        self._query_cache.clear()
 
     def set_cal_col(self, dim: Dimension) -> None:
         """Registers a calculated (derived) dimension column, computed by a
@@ -147,6 +183,7 @@ class Dataset:
 
     def add_measure(self, measure: Measure) -> None:
         self._measures[measure.name] = measure
+        self._query_cache.clear()
 
     def set_measures(self, measures: list[Measure]) -> None:
         for measure in measures:
@@ -183,8 +220,20 @@ class Dataset:
 
         return _MEASURE_REF_RE.sub(_substitute, measure.formula)
 
+    def _materialize(self) -> None:
+        """Loads the parquet file into a native in-memory DuckDB table once
+        (import mode), so every query() after the first scans a fast
+        in-memory columnar table instead of re-decoding the parquet file
+        from disk each call. Idempotent — safe to call on every query()."""
+        if self._materialized:
+            return
+        self._con.sql(
+            f"CREATE OR REPLACE TABLE _base AS SELECT * FROM read_parquet('{self._escaped_path()}')"
+        )
+        self._materialized = True
+
     def _source_sql(self) -> str:
-        base = f"read_parquet('{self._escaped_path()}')"
+        base = "_base" if self._materialized else f"read_parquet('{self._escaped_path()}')"
         calculated = [d for d in self._dims.values() if d.transform]
         if not calculated:
             return base
@@ -203,6 +252,17 @@ class Dataset:
         self._legend_obj = self._resolve_dim(legend) if legend else None
         self._measure_obj = self._resolve_measure(measure)
         self._sort_by = sort_by if sort_by is not None else {"dim": "asc"}
+
+        # Dataset is immutable after construction (no write-back path), so
+        # an identical (dim, measure, legend, filters, sort_by) call always
+        # produces the same QueryResult — safe to cache and skip re-querying
+        # DuckDB entirely on repeat calls (e.g. gallery regeneration, a
+        # multi-measure Vizzy.line() re-querying the same dim/filters).
+        cache_key = (dim, measure, legend, filters, tuple(self._sort_by.items()))
+        if cache_key in self._query_cache:
+            return self._query_cache[cache_key]
+
+        self._materialize()
         self._categories = None
         self._legend_categories = None
         self._values = None
@@ -225,7 +285,7 @@ class Dataset:
         else:
             self._query_3dim()
 
-        return QueryResult(
+        result = QueryResult(
             categories=ResultDimension(
                 name=self._dim_obj.name,
                 value=self._categories,
@@ -247,6 +307,8 @@ class Dataset:
                 else None
             ),
         )
+        self._query_cache[cache_key] = result
+        return result
 
     def _sort_keys(self) -> tuple[list, list]:
         """self._sort_by's dim/mes entries -> Polars .sort(by=, descending=)

@@ -93,3 +93,42 @@ def test_circular_measure_reference_raises(orders_dataset):
 def test_set_cal_col_requires_transform(orders_dataset):
     with pytest.raises(ValueError):
         orders_dataset.set_cal_col(Dimension(name="no_transform"))
+
+
+def test_measure_added_after_first_query_resolves_against_materialized_table(orders_dataset):
+    # The first query() call triggers import-mode materialization (see
+    # Dataset._materialize()); a measure declared afterward must still
+    # resolve correctly against the now-materialized table, not just the
+    # raw parquet path.
+    orders_dataset.query(dim="month", measure="num_orders")
+    orders_dataset.add_measure(
+        Measure(
+            "num_banana_orders",
+            "count(distinct case when fruit='banana' then order_id else null end)",
+        )
+    )
+    result = orders_dataset.query(dim="month", measure="num_banana_orders")
+    assert list(result.values.value) == [1.0, 1.0, 0.0]
+
+
+def test_cal_col_added_after_first_query_resolves_against_materialized_table(orders_dataset):
+    orders_dataset.query(dim="month", measure="num_orders")
+    orders_dataset.set_cal_col(
+        Dimension(name="quarter", transform="date_trunc('quarter', date)")
+    )
+    result = orders_dataset.query(dim="quarter", measure="num_orders")
+    assert list(result.values.value) == [6.0]  # all orders fall in Q1 2025
+
+
+def test_repeated_identical_query_is_served_from_cache(orders_dataset):
+    first = orders_dataset.query(dim="month", measure="num_orders")
+    second = orders_dataset.query(dim="month", measure="num_orders")
+    assert second is first
+    assert list(second.values.value) == [2.0, 3.0, 1.0]
+
+
+def test_redeclaring_a_measure_invalidates_the_cache(orders_dataset):
+    orders_dataset.query(dim="month", measure="num_orders")
+    orders_dataset.add_measure(Measure("num_orders", "count(distinct order_id) * 2"))
+    result = orders_dataset.query(dim="month", measure="num_orders")
+    assert list(result.values.value) == [4.0, 6.0, 2.0]
