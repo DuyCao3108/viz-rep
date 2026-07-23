@@ -1,0 +1,1240 @@
+table v_pcb_cvm_client
+	lineageTag: 09bd8ae4-b800-4d73-9012-ba483688ca1a
+
+	measure '# Client' = DISTINCTCOUNT(v_pcb_cvm_client[ID_CUID])
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000001
+
+	measure '# Client submit BOD1 XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_BOD1_BOD2_SUBMIT] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000002
+
+	measure '# Client approved BOD1 XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_BOD1_BOD2_APPROVE] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000003
+
+	measure '# Client login' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_CNT_LOGIN] > 0))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000004
+
+	measure '# Client eli CLX' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_CLX] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000005
+
+	measure '# Client eli CCX' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_CCX] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000006
+
+	measure '# Client eli XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_XS] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000007
+
+	measure '# Client submit BOD0 XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[SCOR_F_BOD0_SUBMIT] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000008
+
+	measure '# Client approved BOD0 XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[SCOR_F_BOD0_APPROVED] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000009
+
+	measure '# Client prime digital' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_F_DIGITAL_PRIME] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000010
+
+	measure '# Client has exp. CC' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_HAS_CC_ANY_LENDER_BEFORE] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000011
+
+	measure '# Client has exp. CL' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_HAS_CL_ANY_LENDER_BEFORE] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000012
+
+	measure '% Client submit BOD1 XS' = DIVIDE([# Client submit BOD1 XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000013
+
+	measure '% Client approved BOD1 XS' = DIVIDE([# Client approved BOD1 XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000014
+
+	measure '% Client login' = DIVIDE([# Client login], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000015
+
+	measure '% Client eli CLX' = DIVIDE([# Client eli CLX], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000016
+
+	measure '% Client eli CCX' = DIVIDE([# Client eli CCX], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000017
+
+	measure '% Client eli XS' = DIVIDE([# Client eli XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000018
+
+	measure '% Client submit BOD0 XS' = DIVIDE([# Client submit BOD0 XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000019
+
+	measure '% Client approved BOD0 XS' = DIVIDE([# Client approved BOD0 XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000020
+
+	measure '% Client prime digital' = DIVIDE([# Client prime digital], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000021
+
+	measure '% Client has exp. CC' = DIVIDE([# Client has exp. CC], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000022
+
+	measure '% Client has exp. CL' = DIVIDE([# Client has exp. CL], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000023
+
+	measure '% Client BOD1 approval rate XS' = DIVIDE([# Client approved BOD1 XS], [# Client submit BOD1 XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000024
+
+	measure '% Client BOD0 approval rate XS' = DIVIDE([# Client approved BOD0 XS], [# Client submit BOD0 XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000025
+
+	measure '# Client signnc XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CLX] = 1 || v_pcb_cvm_client[APPL_F_SIGNNC_CCX] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000026
+
+	measure '% Client BOD0 submit/Eli XS' = DIVIDE([# Client submit BOD0 XS], [# Client eli XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000027
+
+	measure '% Client signnc XS/Eli XS' = DIVIDE([# Client signnc XS], [# Client eli XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000028
+
+	measure '% Client BOD1/BOD0 approved XS' = DIVIDE([# Client approved BOD1 XS], [# Client approved BOD0 XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000029
+
+	measure 'Hist. Total signnc contract' = SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_CONTRACT])
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000030
+
+	measure 'Hist. Total signnc CL' = SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_CL])
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000031
+
+	measure 'Hist. Total signnc POS' = SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_POS])
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000032
+
+	measure 'Hist. Avg contract per client' = DIVIDE([Hist. Total signnc contract], [# Client])
+		formatString: #,0.00
+		displayFolder: Measure
+		lineageTag: 1000033
+
+	measure 'Avg. Happy login per client' = DIVIDE(SUM(v_pcb_cvm_client[HAPPY_CNT_LOGIN]), [# Client])
+		formatString: #,0.00
+		displayFolder: Measure
+		lineageTag: 1000044
+
+	measure '# Client login w advanced act' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_ADVANCE_ACTION] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000045
+
+	measure '% Client login w advanced act/Login' = DIVIDE([# Client login w advanced act], [# Client login])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000046
+
+	measure '% Client login w advanced act' = DIVIDE([# Client login w advanced act], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000047
+
+	measure '# Client repay happy' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_REPAYMENT] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000048
+
+	measure '# Client login w bio' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_LOGIN_BIO] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000049
+
+	measure '# Client BOD0 via happy XS' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_BOD0_GMA] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000050
+
+	measure '% Client repay happy/Client login' = DIVIDE([# Client repay happy], [# Client login])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000051
+
+	measure '% Client login w bio/Client login' = DIVIDE([# Client login w bio], [# Client login])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000052
+
+	measure '% Client BOD0 via happy XS/Client login' = DIVIDE([# Client BOD0 via happy XS], [# Client login])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000053
+
+	measure '% Client repay happy' = DIVIDE([# Client repay happy], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000054
+
+	measure '% Client login w bio' = DIVIDE([# Client login w bio], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000055
+
+	measure '% Client BOD0 via happy XS' = DIVIDE([# Client BOD0 via happy XS], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000056
+
+	measure '# Client prime' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_F_PRIME] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000057
+
+	measure '# Client remain prime' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_PRIME_GR] = "4. Remain Prime"))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000058
+
+	measure '# Client remain prime-digital' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_PRIME_GR] = "1. Remain Digi Prime"))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000059
+
+	measure '% Client remain prime' = DIVIDE([# Client remain prime], v_pcb_cvm_client[# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000060
+
+	measure '% Client remain prime-digital' = DIVIDE([# Client remain prime-digital], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000061
+
+	measure '% Client signnc XS' = DIVIDE([# Client signnc XS], v_pcb_cvm_client[# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: af68cb08-1b75-4aee-a54d-70b2fcdce0ce
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	measure '% Client BOD1/Eli XS' = DIVIDE([# Client approved BOD1 XS], [# Client submit BOD1 XS])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 33d0f9f5-209d-4675-83f7-84d9d8dacdd5
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	measure '# Client signnc CLX' = CALCULATE(v_pcb_cvm_client[# Client],FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CLX]=1))
+		formatString: 0
+		displayFolder: Measure
+		lineageTag: 0d5ed227-ea9b-454d-b7e6-3dd7fe7c1cbe
+
+	measure '# Client signnc CCX' = CALCULATE(v_pcb_cvm_client[# Client],FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CCX]=1))
+		formatString: 0
+		displayFolder: Measure
+		lineageTag: 5731f98c-d31f-4086-8c3a-16943639dd5b
+
+	measure '% Client signnc CLX' = DIVIDE([# Client signnc CLX], v_pcb_cvm_client[# Client])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Measure
+		lineageTag: 9cfa8555-e260-449f-ae32-4f8872c6e9ab
+
+	measure '% Client signnc CCX' = DIVIDE([# Client signnc CCX], v_pcb_cvm_client[# Client])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Measure
+		lineageTag: 824a5027-d598-490a-93f8-1c9f678528cc
+
+	measure '% Client signnc XS/Approved BOD0' = DIVIDE([# Client signnc XS], v_pcb_cvm_client[# Client approved BOD0 XS])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: e72462b2-9f80-4c7f-909e-360598d4079b
+
+	measure '% Client signnc CLX/Approved BOD0' = DIVIDE([# Client signnc CLX], v_pcb_cvm_client[# Client approved BOD0 XS])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: 1b6baaff-de2a-49fb-b11f-96b56211e55b
+
+	measure '% Client signnc CCX/Approved BOD0' = DIVIDE([# Client signnc CCX], v_pcb_cvm_client[# Client approved BOD0 XS])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: d7312db6-7133-41d3-9d13-173202d65f88
+
+	measure '# Client act XS PCB' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000062
+
+	measure '# Client act XS with BANK' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000063
+
+	measure '# Client act XS with FI' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000064
+
+	measure '% Client act XS with BANK' = DIVIDE([# Client act XS with BANK], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000065
+
+	measure '% Client act XS with FI' = DIVIDE([# Client act XS with FI], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000066
+
+	measure '% Client act XS with BANK/act XS PCB' = DIVIDE([# Client act XS with BANK], [# Client act XS PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000067
+
+	measure '% Client act XS with FI/act XS PCB' = DIVIDE([# Client act XS with FI], [# Client act XS PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000068
+
+	measure '# Client act CL PCB' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000069
+
+	measure '# Client act CL with BANK' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000070
+
+	measure '# Client act CL with FI' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000071
+
+	measure '% Client act CL with BANK' = DIVIDE([# Client act CL with BANK], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000072
+
+	measure '% Client act CL with FI' = DIVIDE([# Client act CL with FI], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000073
+
+	measure '% Client act CL with BANK/act CL PCB' = DIVIDE([# Client act CL with BANK], [# Client act CL PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000074
+
+	measure '% Client act CL with FI/act CL PCB' = DIVIDE([# Client act CL with FI], [# Client act CL PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000075
+
+	measure '# Client act CC PCB' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000076
+
+	measure '# Client act CC with BANK' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000077
+
+	measure '# Client act CC with FI' = CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1))
+		formatString: #,0
+		displayFolder: Measure
+		lineageTag: 1000078
+
+	measure '% Client act CC with BANK' = DIVIDE([# Client act CC with BANK], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000079
+
+	measure '% Client act CC with FI' = DIVIDE([# Client act CC with FI], [# Client])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000080
+
+	measure '% Client act CC with BANK/act CC PCB' = DIVIDE([# Client act CC with BANK], [# Client act CC PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000081
+
+	measure '% Client act CC with FI/act CC PCB' = DIVIDE([# Client act CC with FI], [# Client act CC PCB])
+		formatString: 0.0%
+		displayFolder: Measure
+		lineageTag: 1000082
+
+	measure '% Client act XS PCB' = DIVIDE([# Client act XS PCB], [# Client])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: e3d57ea7-7ceb-461b-af64-b14b4de2ed7e
+
+	measure '% Client act CC PCB/act XS PCB' = DIVIDE([# Client act CC PCB], [# Client act XS PCB])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: ebfad6be-014e-415a-affb-fe7e7bd59cd5
+
+	measure '% Client act CL PCB/act XS PCB' = DIVIDE([# Client act CL PCB], [# Client act XS PCB])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Measure
+		lineageTag: 2f5ba569-8bfc-4234-95e4-73ac1e57cb1b
+
+	column ID_CUID
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 120974f5-0a86-4b6f-a6ff-3b034e77d28e
+		summarizeBy: count
+		sourceColumn: ID_CUID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DATE_REPORT_QUARTER
+		dataType: dateTime
+		formatString: yy-mm
+		displayFolder: Dimension
+		lineageTag: 4e4bb27f-661d-42d3-9422-f2a25bafb4b1
+		summarizeBy: none
+		sourceColumn: DATE_REPORT_QUARTER
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column CLI_AGE_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: db2c5533-fd26-46d8-87dc-27635ed35337
+		summarizeBy: none
+		sourceColumn: CLI_AGE_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLI_CITY_TIER
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 9c42fcb8-0ed4-4248-a8e4-6e4a53c6b763
+		summarizeBy: none
+		sourceColumn: CLI_CITY_TIER
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLI_GENDER
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: ad0de9b1-b8b1-4220-9129-c2e813655790
+		summarizeBy: none
+		sourceColumn: CLI_GENDER
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLI_INCOME_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 37dfb7d8-8752-4a47-babd-a9b31987b1d7
+		summarizeBy: none
+		sourceColumn: CLI_INCOME_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_BOD1_BOD2_APPROVE
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 2d522d58-e752-4699-be8d-183484b1a0a1
+		summarizeBy: sum
+		sourceColumn: APPL_F_BOD1_BOD2_APPROVE
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_BOD1_BOD2_SUBMIT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 3bd93eac-aa6e-41c1-b43e-cec49e44fea7
+		summarizeBy: sum
+		sourceColumn: APPL_F_BOD1_BOD2_SUBMIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_CNT_LOGIN
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: edbd0725-46eb-4c3b-ac64-b6e0abb716f7
+		summarizeBy: sum
+		sourceColumn: HAPPY_CNT_LOGIN
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_CNT_LOGIN_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 48ed8fea-f0ad-423c-a1bb-21383e95f145
+		summarizeBy: none
+		sourceColumn: HAPPY_CNT_LOGIN_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_DAYS_FROM_LST_LOGIN_WI_90D_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 9e4ac851-9aac-4754-96d6-0704f1312688
+		summarizeBy: none
+		sourceColumn: HAPPY_DAYS_FROM_LST_LOGIN_WI_90D_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFF_HIGHEST_SO_PRIO
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 226167d3-ce90-4efc-a39f-0e36235d5f2f
+		summarizeBy: none
+		sourceColumn: OFF_HIGHEST_SO_PRIO
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFF_PO_CCX_MAX_LIMIT
+		dataType: double
+		displayFolder: Dimension
+		lineageTag: 6aecd4a6-c844-42ee-84f3-023e2ec52704
+		summarizeBy: sum
+		sourceColumn: OFF_PO_CCX_MAX_LIMIT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OFF_PO_CCX_MAX_RBP
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: a4dd307b-acc6-4c66-ab14-288038e955d7
+		summarizeBy: none
+		sourceColumn: OFF_PO_CCX_MAX_RBP
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFF_PO_CLX_MAX_LIMIT
+		dataType: double
+		displayFolder: Dimension
+		lineageTag: fcc2d4dd-b005-4068-b66a-fc8f11da6c95
+		summarizeBy: sum
+		sourceColumn: OFF_PO_CLX_MAX_LIMIT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OFF_PO_CLX_MAX_RBP
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 2a6544d2-c155-46ec-b63e-ff5c43dbdbc3
+		summarizeBy: none
+		sourceColumn: OFF_PO_CLX_MAX_RBP
+
+		annotation SummarizationSetBy = Automatic
+
+	column SCOR_F_BOD0_SUBMIT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: e0827066-2459-4def-a2fb-133c925b8b5a
+		summarizeBy: sum
+		sourceColumn: SCOR_F_BOD0_SUBMIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_PRIME
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 9beae414-5503-45cd-a392-6c9b8e4357c5
+		summarizeBy: sum
+		sourceColumn: STAGE_F_PRIME
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_DIGITAL_PRIME
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 481db08e-f7f8-4b5f-8ad5-8d5d8909d884
+		summarizeBy: sum
+		sourceColumn: STAGE_F_DIGITAL_PRIME
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_FST_SEGMENT
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: ff9c7e0b-6969-4440-87ae-efafcba7ef54
+		summarizeBy: none
+		sourceColumn: STAGE_FST_SEGMENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_LST_SEGMENT
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: f7e4a9f7-24f4-4e53-9838-d15d3547dc7a
+		summarizeBy: none
+		sourceColumn: STAGE_LST_SEGMENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_HAS_CC_ANY_LENDER_BEFORE
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 2290849b-dc00-4d6f-83f5-ae0ffc05ce4e
+		summarizeBy: sum
+		sourceColumn: PCB_F_HAS_CC_ANY_LENDER_BEFORE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_HAS_CL_ANY_LENDER_BEFORE
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 9735a5de-a358-48ff-8e0f-63b0a958711d
+		summarizeBy: sum
+		sourceColumn: PCB_F_HAS_CL_ANY_LENDER_BEFORE
+
+		annotation SummarizationSetBy = Automatic
+
+	column DTIME_INSERTED
+		dataType: dateTime
+		formatString: General Date
+		displayFolder: Dimension
+		lineageTag: 344528d2-9252-453a-b442-e3f485dbbe86
+		summarizeBy: none
+		sourceColumn: DTIME_INSERTED
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFFER_F_ELI_CCX
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 6b8c3d3a-2148-4123-9f8a-83fccb89cbac
+		summarizeBy: sum
+		sourceColumn: OFFER_F_ELI_CCX
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFFER_F_ELI_CLX
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 2abb17a8-9882-4a5c-8344-2508d35ca340
+		summarizeBy: sum
+		sourceColumn: OFFER_F_ELI_CLX
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFFER_F_ELI_XS
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: f75e6ace-b28f-4403-83ca-88339c59b388
+		summarizeBy: sum
+		sourceColumn: OFFER_F_ELI_XS
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_PRIME_NEXT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 5c6f319f-aa88-4e8e-a74a-349eb16d56d9
+		summarizeBy: sum
+		sourceColumn: STAGE_F_PRIME_NEXT
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_PRIME_DIGITAL_NEXT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 821407ef-41e6-4e69-b8c6-7f3f5fa9add8
+		summarizeBy: sum
+		sourceColumn: STAGE_F_PRIME_DIGITAL_NEXT
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_BOD0_GMA
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 37b90426-13ba-466e-897c-360be0c50ec7
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_BOD0_GMA
+
+		annotation SummarizationSetBy = Automatic
+
+	column SCOR_F_BOD0_APPROVED
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 338be4aa-a1d0-4769-b0fa-c7dd209c31b2
+		summarizeBy: sum
+		sourceColumn: SCOR_F_BOD0_APPROVED
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_SIGNNC_CLX
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 30a353a0-1cae-42f8-b1c7-bc7fbd7daaa0
+		summarizeBy: sum
+		sourceColumn: APPL_F_SIGNNC_CLX
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_SIGNNC_CCX
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 46baed3d-b28f-4396-94df-f7383c068731
+		summarizeBy: sum
+		sourceColumn: APPL_F_SIGNNC_CCX
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_SIGNNC_POS
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 99c8a80e-b02e-4cda-bd91-8bcd488671e4
+		summarizeBy: sum
+		sourceColumn: APPL_F_SIGNNC_POS
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_CLX_TICKET_SIZE
+		dataType: double
+		displayFolder: Dimension
+		lineageTag: 60399c61-f85b-4e65-a2e6-1e3375d60aa6
+		summarizeBy: sum
+		sourceColumn: APPL_CLX_TICKET_SIZE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APPL_CLX_TENOR
+		dataType: double
+		displayFolder: Dimension
+		lineageTag: 6d6f8914-e009-4a2b-96a6-f4a06bd61559
+		summarizeBy: sum
+		sourceColumn: APPL_CLX_TENOR
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HIST_CNT_SIGNNC_CONTRACT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: d134a318-4647-4667-ba16-e15b865dbc32
+		summarizeBy: sum
+		sourceColumn: HIST_CNT_SIGNNC_CONTRACT
+
+		annotation SummarizationSetBy = Automatic
+
+	column HIST_CNT_SIGNNC_CL
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 2b717be6-fcc8-4516-a804-4eff98923dc2
+		summarizeBy: sum
+		sourceColumn: HIST_CNT_SIGNNC_CL
+
+		annotation SummarizationSetBy = Automatic
+
+	column HIST_CNT_SIGNNC_CC
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 7ffa4b68-e89c-41af-8d42-30192c6c58c7
+		summarizeBy: sum
+		sourceColumn: HIST_CNT_SIGNNC_CC
+
+		annotation SummarizationSetBy = Automatic
+
+	column HIST_CNT_SIGNNC_POS
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: a9f0b363-9bc6-4860-8356-aa1467cbbd29
+		summarizeBy: sum
+		sourceColumn: HIST_CNT_SIGNNC_POS
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_LOGIN_BIO
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 256a8f61-d951-4151-965f-9d6a49dc2a9c
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_LOGIN_BIO
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_LOGIN_N3M
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 1d52c1f4-12ee-46c3-bad0-d66b152e350c
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_LOGIN_N3M
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_REPAYMENT
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: ef6eeeb3-f25f-4949-bff9-b4a594f9a037
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_REPAYMENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_ACT_CARD_BANK
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 1d570d2e-457d-457d-aae7-482124867116
+		summarizeBy: sum
+		sourceColumn: PCB_F_ACT_CARD_BANK
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_ACT_CARD_FI
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 05e3ba70-b8f5-45b6-8a9f-afa981c2150f
+		summarizeBy: sum
+		sourceColumn: PCB_F_ACT_CARD_FI
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_ACT_CASH_BANK
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: c597c99a-7a67-42d5-8f31-edadb4369f72
+		summarizeBy: sum
+		sourceColumn: PCB_F_ACT_CASH_BANK
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_F_ACT_CASH_FI
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: bfdd657c-2586-4958-9270-48275164153d
+		summarizeBy: sum
+		sourceColumn: PCB_F_ACT_CASH_FI
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_CLX_TICKET_SIZE_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: b239312f-5c8e-46ed-9c29-12f4c615933e
+		summarizeBy: none
+		sourceColumn: APPL_CLX_TICKET_SIZE_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_CLX_TENOR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 75f4bc02-c9f2-44dd-b55e-d5ee6ce6b6f1
+		summarizeBy: none
+		sourceColumn: APPL_CLX_TENOR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HIST_PROD_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 4eea5025-4159-4afc-9691-c49d456f22aa
+		summarizeBy: none
+		sourceColumn: HIST_PROD_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HCVN_ACT_PROD_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 77d61a40-c415-4427-b5f4-00f9889c4a2f
+		summarizeBy: none
+		sourceColumn: HCVN_ACT_PROD_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_RETENTION_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: ffcac924-0805-4546-9f4b-f37eaa790b5f
+		summarizeBy: none
+		sourceColumn: HAPPY_RETENTION_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_SAVINESS_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 9716682e-d8f7-4baf-b9e2-dfb7044419be
+		summarizeBy: none
+		sourceColumn: HAPPY_SAVINESS_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_ADVANCE_ACTION
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 34790b60-8861-4dcc-abef-4305813ac69d
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_ADVANCE_ACTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_PRIME_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 183cb06f-8b38-4d16-b851-b62e1a9ca51e
+		summarizeBy: none
+		sourceColumn: STAGE_PRIME_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column _dummy1 = ""
+		displayFolder: Dimension
+		lineageTag: a7cfd2d8-4e73-4e7b-be12-3cf1d3419229
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column _dummy2 = ""
+		displayFolder: Dimension
+		lineageTag: 8db34448-14b7-4bf4-9950-7619ae3ed12c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column _dummy3 = ""
+		displayFolder: Dimension
+		lineageTag: c7ca3c40-3de8-4684-a2d5-3f0934465d98
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column _dummy4 = ""
+		displayFolder: Dimension
+		lineageTag: ac32c1c9-d333-4bdb-af53-ce34924c5d70
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column _dummy5 = ""
+		displayFolder: Dimension
+		lineageTag: c73845c7-2c69-44f5-81df-0de98c210c18
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_CLX_APL_CHANNEL
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: f0d8125f-956a-424e-bc9f-c859ad2f507b
+		summarizeBy: none
+		sourceColumn: APPL_CLX_APL_CHANNEL
+
+		annotation SummarizationSetBy = Automatic
+
+	column SCOR_FST_BOD0_CHANNEL_XS
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: a761eb4b-7b9c-4cbb-81f0-a42d08cf683e
+		summarizeBy: none
+		sourceColumn: SCOR_FST_BOD0_CHANNEL_XS
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_PRIME_BOP
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 776519b4-098e-4be9-b297-d20b6ba67ad5
+		summarizeBy: sum
+		sourceColumn: STAGE_F_PRIME_BOP
+
+		annotation SummarizationSetBy = Automatic
+
+	column STAGE_F_PRIME_DIGITAL_BOP
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 56883657-0d51-4ab2-8bc9-322e286a880d
+		summarizeBy: sum
+		sourceColumn: STAGE_F_PRIME_DIGITAL_BOP
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_CC_LENDER_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 4bff3419-2908-4e06-ad9a-8a2ca83c35bc
+		summarizeBy: none
+		sourceColumn: PCB_CC_LENDER_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_CL_LENDER_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: bae7c929-1655-4994-88de-93152c125591
+		summarizeBy: none
+		sourceColumn: PCB_CL_LENDER_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_CC_LENDER_GR_DTL
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 8e01f76e-1538-4f12-a700-389997bbbcdd
+		summarizeBy: none
+		sourceColumn: PCB_CC_LENDER_GR_DTL
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_CL_LENDER_GR_DTL
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 838028aa-486b-474a-a9d5-d28a2edfba85
+		summarizeBy: none
+		sourceColumn: PCB_CL_LENDER_GR_DTL
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_XS_LENDER_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 776c331e-cbae-4c8c-a3e2-ce386db2d379
+		summarizeBy: none
+		sourceColumn: PCB_XS_LENDER_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_XS_LENDER_GR_DTL
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 7f3cb28d-59c3-4b0b-b944-2ae26e56779b
+		summarizeBy: none
+		sourceColumn: PCB_XS_LENDER_GR_DTL
+
+		annotation SummarizationSetBy = Automatic
+
+	column HCVN_F_ACT_XS
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 54819667-b537-4def-a848-7b65e1a700d1
+		summarizeBy: sum
+		sourceColumn: HCVN_F_ACT_XS
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPL_F_SIGNNC_XS = IF(v_pcb_cvm_client[APPL_F_SIGNNC_CLX] = 1 || v_pcb_cvm_client[APPL_F_SIGNNC_CCX] = 1,1,0)
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 26c5a401-3b8d-4d31-b6d8-c973bf44ca7d
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_BANK_MAX_IR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: c22360e0-8118-4e86-ab3c-405e479a0c4b
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_BANK_MAX_IR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_BANK_MAX_TENOR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: ec0ae2c6-4f1a-4ff3-b24f-343a7588c2b4
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_BANK_MAX_TENOR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_BANK_MAX_TICKET_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 2186937b-2bc5-4d16-8d5e-f708cf4b3669
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_BANK_MAX_TICKET_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_FI_MAX_IR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: dd53135e-20ff-49d6-be7f-03352ca17372
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_FI_MAX_IR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_FI_MAX_TENOR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 5575a1ca-8ea6-4c7e-b946-28659486718e
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_FI_MAX_TENOR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_FI_MAX_TICKET_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: e86660bb-7edf-4ed4-ae80-11079e704cef
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_FI_MAX_TICKET_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_COMFI_MAX_IR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: ed0cccda-c107-42e0-8a3a-5d9d16246edb
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_COMFI_MAX_IR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_COMFI_MAX_TENOR_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: d759dd16-025a-466c-8adb-f2947cc413ab
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_COMFI_MAX_TENOR_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_CASH_COMFI_MAX_TICKET_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 607b9736-1d1b-405e-bc99-bc3501867df7
+		summarizeBy: none
+		sourceColumn: PCB_ACT_CASH_COMFI_MAX_TICKET_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_F_ADVANCE_ACTION_L3M
+		dataType: int64
+		formatString: 0
+		displayFolder: Dimension
+		lineageTag: 567d2d74-1728-4a15-a4b9-2db5645eda71
+		summarizeBy: sum
+		sourceColumn: HAPPY_F_ADVANCE_ACTION_L3M
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_SAVINESS_L3M_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: 317eae17-a245-4738-af4d-aa1577c248b0
+		summarizeBy: none
+		sourceColumn: HAPPY_SAVINESS_L3M_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column HAPPY_CNT_LOGIN_L3M_GR
+		dataType: string
+		displayFolder: Dimension
+		lineageTag: b94a0b4f-ae8e-4e91-86e1-7b17a20daf35
+		summarizeBy: none
+		sourceColumn: HAPPY_CNT_LOGIN_L3M_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	column PCB_ACT_PROD_GR
+		dataType: string
+		lineageTag: bbfb4e00-857c-408f-8687-5234df13ca64
+		summarizeBy: none
+		sourceColumn: PCB_ACT_PROD_GR
+
+		annotation SummarizationSetBy = Automatic
+
+	partition v_pcb_cvm_client = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents("C:\Users\Duy.CaoV\Home Credit International a.s\CRM_ANALYTICS - New reports\DUY_CRM\CDDA\CDDA-436-PCB SEGMENT ACTIVATION\REPORT\PARQUET_DATA\v_pcb_cvm_client.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null]),
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"PCB_CARD_LENDER_GR", "PCB_CC_LENDER_GR"}, {"PCB_CASH_LENDER_GR", "PCB_CL_LENDER_GR"}, {"SCOR_FST_BOD0_CHANNEL", "SCOR_FST_BOD0_CHANNEL_XS"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

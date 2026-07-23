@@ -1,0 +1,519 @@
+{
+  "table": "v_pcb_cvm_client",
+  "dimensions": [
+    {
+      "name": "DATE_REPORT_QUARTER",
+      "fmt": "yy-mm"
+    },
+    {
+      "name": "APPL_F_SIGNNC_XS",
+      "transform": "CASE WHEN (\"APPL_F_SIGNNC_CLX\" = 1 OR \"APPL_F_SIGNNC_CCX\" = 1) THEN 1 ELSE 0 END"
+    }
+  ],
+  "measures": [
+    {
+      "name": "# Client",
+      "formula": "count(distinct \"ID_CUID\")",
+      "fmt": "#,",
+      "dax": "DISTINCTCOUNT(v_pcb_cvm_client[ID_CUID])"
+    },
+    {
+      "name": "# Client submit BOD1 XS",
+      "formula": "count(distinct CASE WHEN \"APPL_F_BOD1_BOD2_SUBMIT\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_BOD1_BOD2_SUBMIT] = 1))"
+    },
+    {
+      "name": "# Client approved BOD1 XS",
+      "formula": "count(distinct CASE WHEN \"APPL_F_BOD1_BOD2_APPROVE\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_BOD1_BOD2_APPROVE] = 1))"
+    },
+    {
+      "name": "# Client login",
+      "formula": "count(distinct CASE WHEN \"HAPPY_CNT_LOGIN\" > 0 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_CNT_LOGIN] > 0))"
+    },
+    {
+      "name": "# Client eli CLX",
+      "formula": "count(distinct CASE WHEN \"OFFER_F_ELI_CLX\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_CLX] = 1))"
+    },
+    {
+      "name": "# Client eli CCX",
+      "formula": "count(distinct CASE WHEN \"OFFER_F_ELI_CCX\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_CCX] = 1))"
+    },
+    {
+      "name": "# Client eli XS",
+      "formula": "count(distinct CASE WHEN \"OFFER_F_ELI_XS\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[OFFER_F_ELI_XS] = 1))"
+    },
+    {
+      "name": "# Client submit BOD0 XS",
+      "formula": "count(distinct CASE WHEN \"SCOR_F_BOD0_SUBMIT\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[SCOR_F_BOD0_SUBMIT] = 1))"
+    },
+    {
+      "name": "# Client approved BOD0 XS",
+      "formula": "count(distinct CASE WHEN \"SCOR_F_BOD0_APPROVED\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[SCOR_F_BOD0_APPROVED] = 1))"
+    },
+    {
+      "name": "# Client prime digital",
+      "formula": "count(distinct CASE WHEN \"STAGE_F_DIGITAL_PRIME\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_F_DIGITAL_PRIME] = 1))"
+    },
+    {
+      "name": "# Client has exp. CC",
+      "formula": "count(distinct CASE WHEN \"PCB_F_HAS_CC_ANY_LENDER_BEFORE\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_HAS_CC_ANY_LENDER_BEFORE] = 1))"
+    },
+    {
+      "name": "# Client has exp. CL",
+      "formula": "count(distinct CASE WHEN \"PCB_F_HAS_CL_ANY_LENDER_BEFORE\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_HAS_CL_ANY_LENDER_BEFORE] = 1))"
+    },
+    {
+      "name": "% Client submit BOD1 XS",
+      "formula": "({# Client submit BOD1 XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client submit BOD1 XS], [# Client])"
+    },
+    {
+      "name": "% Client approved BOD1 XS",
+      "formula": "({# Client approved BOD1 XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD1 XS], [# Client])"
+    },
+    {
+      "name": "% Client login",
+      "formula": "({# Client login}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client login], [# Client])"
+    },
+    {
+      "name": "% Client eli CLX",
+      "formula": "({# Client eli CLX}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client eli CLX], [# Client])"
+    },
+    {
+      "name": "% Client eli CCX",
+      "formula": "({# Client eli CCX}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client eli CCX], [# Client])"
+    },
+    {
+      "name": "% Client eli XS",
+      "formula": "({# Client eli XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client eli XS], [# Client])"
+    },
+    {
+      "name": "% Client submit BOD0 XS",
+      "formula": "({# Client submit BOD0 XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client submit BOD0 XS], [# Client])"
+    },
+    {
+      "name": "% Client approved BOD0 XS",
+      "formula": "({# Client approved BOD0 XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD0 XS], [# Client])"
+    },
+    {
+      "name": "% Client prime digital",
+      "formula": "({# Client prime digital}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client prime digital], [# Client])"
+    },
+    {
+      "name": "% Client has exp. CC",
+      "formula": "({# Client has exp. CC}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client has exp. CC], [# Client])"
+    },
+    {
+      "name": "% Client has exp. CL",
+      "formula": "({# Client has exp. CL}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client has exp. CL], [# Client])"
+    },
+    {
+      "name": "% Client BOD1 approval rate XS",
+      "formula": "({# Client approved BOD1 XS}) / NULLIF({# Client submit BOD1 XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD1 XS], [# Client submit BOD1 XS])"
+    },
+    {
+      "name": "% Client BOD0 approval rate XS",
+      "formula": "({# Client approved BOD0 XS}) / NULLIF({# Client submit BOD0 XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD0 XS], [# Client submit BOD0 XS])"
+    },
+    {
+      "name": "# Client signnc XS",
+      "formula": "count(distinct CASE WHEN (\"APPL_F_SIGNNC_CLX\" = 1 OR \"APPL_F_SIGNNC_CCX\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CLX] = 1 || v_pcb_cvm_client[APPL_F_SIGNNC_CCX] = 1))"
+    },
+    {
+      "name": "% Client BOD0 submit/Eli XS",
+      "formula": "({# Client submit BOD0 XS}) / NULLIF({# Client eli XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client submit BOD0 XS], [# Client eli XS])"
+    },
+    {
+      "name": "% Client signnc XS/Eli XS",
+      "formula": "({# Client signnc XS}) / NULLIF({# Client eli XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client signnc XS], [# Client eli XS])"
+    },
+    {
+      "name": "% Client BOD1/BOD0 approved XS",
+      "formula": "({# Client approved BOD1 XS}) / NULLIF({# Client approved BOD0 XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD1 XS], [# Client approved BOD0 XS])"
+    },
+    {
+      "name": "Hist. Total signnc contract",
+      "formula": "sum(\"HIST_CNT_SIGNNC_CONTRACT\")",
+      "fmt": "#,",
+      "dax": "SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_CONTRACT])"
+    },
+    {
+      "name": "Hist. Total signnc CL",
+      "formula": "sum(\"HIST_CNT_SIGNNC_CL\")",
+      "fmt": "#,",
+      "dax": "SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_CL])"
+    },
+    {
+      "name": "Hist. Total signnc POS",
+      "formula": "sum(\"HIST_CNT_SIGNNC_POS\")",
+      "fmt": "#,",
+      "dax": "SUM(v_pcb_cvm_client[HIST_CNT_SIGNNC_POS])"
+    },
+    {
+      "name": "Hist. Avg contract per client",
+      "formula": "({Hist. Total signnc contract}) / NULLIF({# Client}, 0)",
+      "fmt": null,
+      "dax": "DIVIDE([Hist. Total signnc contract], [# Client])"
+    },
+    {
+      "name": "Avg. Happy login per client",
+      "formula": "(sum(\"HAPPY_CNT_LOGIN\")) / NULLIF({# Client}, 0)",
+      "fmt": null,
+      "dax": "DIVIDE(SUM(v_pcb_cvm_client[HAPPY_CNT_LOGIN]), [# Client])"
+    },
+    {
+      "name": "# Client login w advanced act",
+      "formula": "count(distinct CASE WHEN \"HAPPY_F_ADVANCE_ACTION\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_ADVANCE_ACTION] = 1))"
+    },
+    {
+      "name": "% Client login w advanced act/Login",
+      "formula": "({# Client login w advanced act}) / NULLIF({# Client login}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client login w advanced act], [# Client login])"
+    },
+    {
+      "name": "% Client login w advanced act",
+      "formula": "({# Client login w advanced act}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client login w advanced act], [# Client])"
+    },
+    {
+      "name": "# Client repay happy",
+      "formula": "count(distinct CASE WHEN \"HAPPY_F_REPAYMENT\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_REPAYMENT] = 1))"
+    },
+    {
+      "name": "# Client login w bio",
+      "formula": "count(distinct CASE WHEN \"HAPPY_F_LOGIN_BIO\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_LOGIN_BIO] = 1))"
+    },
+    {
+      "name": "# Client BOD0 via happy XS",
+      "formula": "count(distinct CASE WHEN \"HAPPY_F_BOD0_GMA\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[HAPPY_F_BOD0_GMA] = 1))"
+    },
+    {
+      "name": "% Client repay happy/Client login",
+      "formula": "({# Client repay happy}) / NULLIF({# Client login}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client repay happy], [# Client login])"
+    },
+    {
+      "name": "% Client login w bio/Client login",
+      "formula": "({# Client login w bio}) / NULLIF({# Client login}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client login w bio], [# Client login])"
+    },
+    {
+      "name": "% Client BOD0 via happy XS/Client login",
+      "formula": "({# Client BOD0 via happy XS}) / NULLIF({# Client login}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client BOD0 via happy XS], [# Client login])"
+    },
+    {
+      "name": "% Client repay happy",
+      "formula": "({# Client repay happy}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client repay happy], [# Client])"
+    },
+    {
+      "name": "% Client login w bio",
+      "formula": "({# Client login w bio}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client login w bio], [# Client])"
+    },
+    {
+      "name": "% Client BOD0 via happy XS",
+      "formula": "({# Client BOD0 via happy XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client BOD0 via happy XS], [# Client])"
+    },
+    {
+      "name": "# Client prime",
+      "formula": "count(distinct CASE WHEN \"STAGE_F_PRIME\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_F_PRIME] = 1))"
+    },
+    {
+      "name": "# Client remain prime",
+      "formula": "count(distinct CASE WHEN \"STAGE_PRIME_GR\" = '4. Remain Prime' THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_PRIME_GR] = \"4. Remain Prime\"))"
+    },
+    {
+      "name": "# Client remain prime-digital",
+      "formula": "count(distinct CASE WHEN \"STAGE_PRIME_GR\" = '1. Remain Digi Prime' THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[STAGE_PRIME_GR] = \"1. Remain Digi Prime\"))"
+    },
+    {
+      "name": "% Client remain prime",
+      "formula": "({# Client remain prime}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client remain prime], v_pcb_cvm_client[# Client])"
+    },
+    {
+      "name": "% Client remain prime-digital",
+      "formula": "({# Client remain prime-digital}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client remain prime-digital], [# Client])"
+    },
+    {
+      "name": "% Client signnc XS",
+      "formula": "({# Client signnc XS}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client signnc XS], v_pcb_cvm_client[# Client])"
+    },
+    {
+      "name": "% Client BOD1/Eli XS",
+      "formula": "({# Client approved BOD1 XS}) / NULLIF({# Client submit BOD1 XS}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client approved BOD1 XS], [# Client submit BOD1 XS])"
+    },
+    {
+      "name": "# Client signnc CLX",
+      "formula": "count(distinct CASE WHEN \"APPL_F_SIGNNC_CLX\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#",
+      "dax": "CALCULATE(v_pcb_cvm_client[# Client],FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CLX]=1))"
+    },
+    {
+      "name": "# Client signnc CCX",
+      "formula": "count(distinct CASE WHEN \"APPL_F_SIGNNC_CCX\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#",
+      "dax": "CALCULATE(v_pcb_cvm_client[# Client],FILTER(v_pcb_cvm_client, v_pcb_cvm_client[APPL_F_SIGNNC_CCX]=1))"
+    },
+    {
+      "name": "% Client signnc CLX",
+      "formula": "({# Client signnc CLX}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client signnc CLX], v_pcb_cvm_client[# Client])"
+    },
+    {
+      "name": "% Client signnc CCX",
+      "formula": "({# Client signnc CCX}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client signnc CCX], v_pcb_cvm_client[# Client])"
+    },
+    {
+      "name": "% Client signnc XS/Approved BOD0",
+      "formula": "({# Client signnc XS}) / NULLIF({# Client approved BOD0 XS}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client signnc XS], v_pcb_cvm_client[# Client approved BOD0 XS])"
+    },
+    {
+      "name": "% Client signnc CLX/Approved BOD0",
+      "formula": "({# Client signnc CLX}) / NULLIF({# Client approved BOD0 XS}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client signnc CLX], v_pcb_cvm_client[# Client approved BOD0 XS])"
+    },
+    {
+      "name": "% Client signnc CCX/Approved BOD0",
+      "formula": "({# Client signnc CCX}) / NULLIF({# Client approved BOD0 XS}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client signnc CCX], v_pcb_cvm_client[# Client approved BOD0 XS])"
+    },
+    {
+      "name": "# Client act XS PCB",
+      "formula": "count(distinct CASE WHEN (((\"PCB_F_ACT_CARD_BANK\" = 1 OR \"PCB_F_ACT_CARD_FI\" = 1) OR \"PCB_F_ACT_CASH_BANK\" = 1) OR \"PCB_F_ACT_CASH_FI\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))"
+    },
+    {
+      "name": "# Client act XS with BANK",
+      "formula": "count(distinct CASE WHEN (\"PCB_F_ACT_CARD_BANK\" = 1 OR \"PCB_F_ACT_CASH_BANK\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1))"
+    },
+    {
+      "name": "# Client act XS with FI",
+      "formula": "count(distinct CASE WHEN (\"PCB_F_ACT_CARD_FI\" = 1 OR \"PCB_F_ACT_CASH_FI\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))"
+    },
+    {
+      "name": "% Client act XS with BANK",
+      "formula": "({# Client act XS with BANK}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act XS with BANK], [# Client])"
+    },
+    {
+      "name": "% Client act XS with FI",
+      "formula": "({# Client act XS with FI}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act XS with FI], [# Client])"
+    },
+    {
+      "name": "% Client act XS with BANK/act XS PCB",
+      "formula": "({# Client act XS with BANK}) / NULLIF({# Client act XS PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act XS with BANK], [# Client act XS PCB])"
+    },
+    {
+      "name": "% Client act XS with FI/act XS PCB",
+      "formula": "({# Client act XS with FI}) / NULLIF({# Client act XS PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act XS with FI], [# Client act XS PCB])"
+    },
+    {
+      "name": "# Client act CL PCB",
+      "formula": "count(distinct CASE WHEN (\"PCB_F_ACT_CASH_BANK\" = 1 OR \"PCB_F_ACT_CASH_FI\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))"
+    },
+    {
+      "name": "# Client act CL with BANK",
+      "formula": "count(distinct CASE WHEN \"PCB_F_ACT_CASH_BANK\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_BANK] = 1))"
+    },
+    {
+      "name": "# Client act CL with FI",
+      "formula": "count(distinct CASE WHEN \"PCB_F_ACT_CASH_FI\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CASH_FI] = 1))"
+    },
+    {
+      "name": "% Client act CL with BANK",
+      "formula": "({# Client act CL with BANK}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CL with BANK], [# Client])"
+    },
+    {
+      "name": "% Client act CL with FI",
+      "formula": "({# Client act CL with FI}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CL with FI], [# Client])"
+    },
+    {
+      "name": "% Client act CL with BANK/act CL PCB",
+      "formula": "({# Client act CL with BANK}) / NULLIF({# Client act CL PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CL with BANK], [# Client act CL PCB])"
+    },
+    {
+      "name": "% Client act CL with FI/act CL PCB",
+      "formula": "({# Client act CL with FI}) / NULLIF({# Client act CL PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CL with FI], [# Client act CL PCB])"
+    },
+    {
+      "name": "# Client act CC PCB",
+      "formula": "count(distinct CASE WHEN (\"PCB_F_ACT_CARD_BANK\" = 1 OR \"PCB_F_ACT_CARD_FI\" = 1) THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1 || v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1))"
+    },
+    {
+      "name": "# Client act CC with BANK",
+      "formula": "count(distinct CASE WHEN \"PCB_F_ACT_CARD_BANK\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_BANK] = 1))"
+    },
+    {
+      "name": "# Client act CC with FI",
+      "formula": "count(distinct CASE WHEN \"PCB_F_ACT_CARD_FI\" = 1 THEN \"ID_CUID\" END)",
+      "fmt": "#,",
+      "dax": "CALCULATE([# Client], FILTER(v_pcb_cvm_client, v_pcb_cvm_client[PCB_F_ACT_CARD_FI] = 1))"
+    },
+    {
+      "name": "% Client act CC with BANK",
+      "formula": "({# Client act CC with BANK}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CC with BANK], [# Client])"
+    },
+    {
+      "name": "% Client act CC with FI",
+      "formula": "({# Client act CC with FI}) / NULLIF({# Client}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CC with FI], [# Client])"
+    },
+    {
+      "name": "% Client act CC with BANK/act CC PCB",
+      "formula": "({# Client act CC with BANK}) / NULLIF({# Client act CC PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CC with BANK], [# Client act CC PCB])"
+    },
+    {
+      "name": "% Client act CC with FI/act CC PCB",
+      "formula": "({# Client act CC with FI}) / NULLIF({# Client act CC PCB}, 0)",
+      "fmt": "%.1",
+      "dax": "DIVIDE([# Client act CC with FI], [# Client act CC PCB])"
+    },
+    {
+      "name": "% Client act XS PCB",
+      "formula": "({# Client act XS PCB}) / NULLIF({# Client}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client act XS PCB], [# Client])"
+    },
+    {
+      "name": "% Client act CC PCB/act XS PCB",
+      "formula": "({# Client act CC PCB}) / NULLIF({# Client act XS PCB}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client act CC PCB], [# Client act XS PCB])"
+    },
+    {
+      "name": "% Client act CL PCB/act XS PCB",
+      "formula": "({# Client act CL PCB}) / NULLIF({# Client act XS PCB}, 0)",
+      "fmt": "%.2",
+      "dax": "DIVIDE([# Client act CL PCB], [# Client act XS PCB])"
+    }
+  ]
+}
