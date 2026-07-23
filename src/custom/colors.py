@@ -35,6 +35,8 @@ COLOR_DICTS: dict[str, dict] = {
     "dark-purple": {"code": "#7537AD"},
     "red": {"code": "#E3120B"},
     "blue": {"code": "#141F52"},
+    "mint": {'code':'#A5D7E8'},
+    "yellow": {'code':'#FEC260'},
     # hcvn set
     "hcvn-red1": {"code": "#FF204E"},
     "hcvn-red2": {"code": "#A0153E"},
@@ -44,6 +46,7 @@ COLOR_DICTS: dict[str, dict] = {
 
 Pal = Literal[
     "cate-55",
+    "cate-30",
     "gradient2-blue",
     "gradient2-red",
     "diverse-blue-mint",
@@ -54,6 +57,22 @@ Pal = Literal[
 
 COLOR_THEMES: dict[str, list[str]] = {
     "cate-55": [
+        "chicago-55",
+        "yellow-55",
+        "hcvn-red2-55",
+        'hong-kong-55',
+        "mint-55",
+        "hcvn-dark-grey-55"
+    ],
+    "cate-30": [
+        "chicago-40",
+        "hcvn-red2-40",
+        "yellow-40",
+        'hong-kong-40',
+        "mint-40",
+        "hcvn-dark-grey-40"
+    ],
+    "cate-55-old": [
         "chicago-20",
         "chicago-50",
         "chicago-80",

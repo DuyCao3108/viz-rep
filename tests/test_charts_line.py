@@ -6,7 +6,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 import pytest
 
-from src.charts.line import Line
+from src.charts.line import AdjustPos, LegendLabelAdjustPos, Line
 from src.custom.colors import get_theme_colors
 from src.dataset import Dimension, Measure, ResultDimension, ResultLegend, ResultMeasure
 
@@ -135,6 +135,62 @@ class TestShowDataLabel:
         for t in ax.texts[3:]:
             assert mcolors.to_rgba(t.get_color()) == mcolors.to_rgba(colors[1])
 
+    def test_no_adjust_pos_uses_default_offset_for_every_label(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        line.show_data_label()
+        assert [t.xyann for t in ax.texts] == [(0, 8), (0, 8), (0, 8)]
+
+    def test_adjust_pos_matches_by_dimension_value_and_measure_name(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.show_data_label(
+            adjust_pos=[AdjustPos(at_dimension_val="Feb", of_measure="a", pad_v=-20, pad_h=3)]
+        )
+        # texts are drawn a's Jan/Feb/Mar then b's Jan/Feb/Mar, in that order.
+        assert ax.texts[1].xyann == (3, -12)  # a/Feb: the matched, adjusted label
+        for t in [ax.texts[0], ax.texts[2], ax.texts[3], ax.texts[4], ax.texts[5]]:
+            assert t.xyann == (0, 8)
+
+    def test_adjust_pos_without_of_measure_matches_every_series_at_that_dim_val(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.show_data_label(adjust_pos=[AdjustPos(at_dimension_val="Jan", pad_h=7)])
+        assert ax.texts[0].xyann == (7, 8)  # a/Jan
+        assert ax.texts[3].xyann == (7, 8)  # b/Jan
+        assert ax.texts[1].xyann == (0, 8)  # a/Feb untouched
+
+    def test_adjust_pos_of_legend_scopes_to_one_legend_series(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_2D, "amt")], _lgd())
+        line.show_data_label(
+            adjust_pos=[AdjustPos(at_dimension_val="Jan", of_legend="South", pad_v=5)]
+        )
+        # texts drawn North's Jan/Feb/Mar then South's Jan/Feb/Mar.
+        assert ax.texts[0].xyann == (0, 8)  # North/Jan untouched
+        assert ax.texts[3].xyann == (0, 13)  # South/Jan matched
+
+    def test_unmatched_at_dimension_val_raises(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a")])
+        with pytest.raises(ValueError):
+            line.show_data_label(adjust_pos=[AdjustPos(at_dimension_val="Nope")])
+
+    def test_unmatched_of_measure_raises(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        with pytest.raises(ValueError):
+            line.show_data_label(
+                adjust_pos=[AdjustPos(at_dimension_val="Jan", of_measure="nope")]
+            )
+
+    def test_no_labels_drawn_when_adjust_pos_raises(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a")])
+        with pytest.raises(ValueError):
+            line.show_data_label(adjust_pos=[AdjustPos(at_dimension_val="Nope")])
+        assert len(ax.texts) == 0
+
 
 class TestResolvePctFmt:
     def test_declared_pct_fmt_renders_percent_labels(self, fig_ax):
@@ -201,6 +257,21 @@ class TestFormatMeasure:
         assert ax.texts[0].get_text() == "Values (in Millions)"
 
 
+class TestAutoTheme:
+    def test_plot_applies_default_theme_with_no_explicit_set_theme_call(self, fig_ax):
+        fig, ax = fig_ax
+        colors = get_theme_colors("cate-30")
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        assert mcolors.to_rgba(line._mes_maps["measure"]["line"].get_color()) == mcolors.to_rgba(colors[0])
+
+    def test_explicit_set_theme_overwrites_the_auto_default(self, fig_ax):
+        fig, ax = fig_ax
+        colors = get_theme_colors("cate-55")
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        line.set_theme(pal="cate-55", tone=None)
+        assert mcolors.to_rgba(line._mes_maps["measure"]["line"].get_color()) == mcolors.to_rgba(colors[0])
+
+
 class TestSetTheme:
     def test_colors_each_series_from_the_palette_in_order(self, fig_ax):
         fig, ax = fig_ax
@@ -252,11 +323,49 @@ class TestSetTheme:
             line.set_theme(tone="bogus")
 
 
+class TestSetMesScale:
+    def test_find_smart_scale_returns_min_max_across_all_series(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        assert line._find_smart_scale() == (1.0, 30.0)
+
+    def test_plot_auto_zooms_ylim_to_smart_scale_with_default_padding(self, fig_ax):
+        fig, ax = fig_ax
+        Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        vmin, vmax = 1.0, 3.0
+        pad = (vmax - vmin) * 0.05
+        assert ax.get_ylim() == pytest.approx((vmin - pad, vmax + pad))
+
+    def test_plot_sets_n_step_plus_one_ticks_by_default(self, fig_ax):
+        fig, ax = fig_ax
+        Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        assert len(ax.get_yticks()) == 6
+
+    def test_set_mes_scale_overrides_with_explicit_ylim_and_n_step(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        line.set_mes_scale(ylim=(0.0, 100.0), n_step=4, std=0.0)
+        assert ax.get_ylim() == pytest.approx((0.0, 100.0))
+        assert len(ax.get_yticks()) == 5
+
+    def test_set_mes_scale_is_chainable(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        assert line.set_mes_scale() is line
+
+    def test_degenerate_equal_values_do_not_produce_zero_width_ylim(self, fig_ax):
+        fig, ax = fig_ax
+        flat = np.array([5.0, 5.0, 5.0])
+        line = Line(fig, ax).plot(_dim(), [_mes(flat)])
+        lo, hi = ax.get_ylim()
+        assert lo < hi
+
+
 class TestSetLineStyle:
     def test_default_style_sets_marker_and_width(self, fig_ax):
         fig, ax = fig_ax
         line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
-        line.set_line_style()
+        line._set_line_style()
         artist = line._mes_maps["measure"]["line"]
         assert artist.get_marker() == "o"
         assert artist.get_markersize() == 4.5
@@ -265,14 +374,93 @@ class TestSetLineStyle:
     def test_smooth_true_replaces_line_with_denser_spline_curve(self, fig_ax):
         fig, ax = fig_ax
         line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
-        line.set_line_style(smooth=True)
+        line._set_line_style(smooth=True)
         artist = line._mes_maps["measure"]["line"]
         assert len(artist.get_xdata()) > len(DIMENSION)
 
     def test_smooth_true_keeps_markers_at_the_real_points(self, fig_ax):
         fig, ax = fig_ax
         line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
-        line.set_line_style(smooth=True)
+        line._set_line_style(smooth=True)
         marker_lines = [ln for ln in ax.get_lines() if ln.get_marker() == "o"]
         assert len(marker_lines) == 1
         assert list(marker_lines[0].get_ydata()) == list(MEASURE_A)
+
+
+class TestSetLegend:
+    def test_default_style_draws_standard_legend(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.set_legend()
+        assert ax.get_legend() is not None
+        assert ax.get_legend()._loc == 2  # "upper left"
+
+    def test_unknown_style_raises(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        with pytest.raises(ValueError):
+            line.set_legend(style="bogus")
+
+    def test_line_pos_end_removes_standard_legend_and_labels_every_series(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.set_legend(line_pos="end")
+        assert ax.get_legend() is None
+        assert line._mes_maps["a"]["legend_annotation"] is not None
+        assert line._mes_maps["b"]["legend_annotation"] is not None
+        assert {a.get_text() for a in [line._mes_maps["a"]["legend_annotation"],
+                                        line._mes_maps["b"]["legend_annotation"]]} == {"a", "b"}
+
+    def test_line_pos_end_anchors_at_last_point_padded_right(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        line.set_legend(line_pos="end")
+        ann = line._mes_maps["measure"]["legend_annotation"]
+        assert ann.xy == (2, MEASURE_A[-1])
+        assert ann.xyann == (8, 0)
+
+    def test_line_pos_begin_anchors_at_first_point_padded_up(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A)])
+        line.set_legend(line_pos="begin")
+        ann = line._mes_maps["measure"]["legend_annotation"]
+        assert ann.xy == (0, MEASURE_A[0])
+        assert ann.xyann == (0, 8)
+
+    def test_single_series_still_labeled_on_line(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "solo")])
+        line.set_legend(line_pos="end")
+        assert line._mes_maps["solo"]["legend_annotation"].get_text() == "solo"
+
+    def test_label_color_matches_line_color(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.set_legend(line_pos="end")
+        for name, entry in line._mes_maps.items():
+            assert mcolors.to_rgba(entry["legend_annotation"].get_color()) == mcolors.to_rgba(
+                entry["line"].get_color()
+            )
+
+
+class TestAdjustLegendLabelPos:
+    def test_shifts_matched_series_additively(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a"), _mes(MEASURE_B, "b")])
+        line.set_legend(line_pos="end")
+        line.adjust_legend_label_pos([LegendLabelAdjustPos(of_measure="a", pad_h=3, pad_v=-2)])
+        assert line._mes_maps["a"]["legend_annotation"].xyann == (11, -2)
+        assert line._mes_maps["b"]["legend_annotation"].xyann == (8, 0)
+
+    def test_unmatched_of_measure_raises(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a")])
+        line.set_legend(line_pos="end")
+        with pytest.raises(ValueError):
+            line.adjust_legend_label_pos([LegendLabelAdjustPos(of_measure="nope")])
+
+    def test_empty_list_is_noop(self, fig_ax):
+        fig, ax = fig_ax
+        line = Line(fig, ax).plot(_dim(), [_mes(MEASURE_A, "a")])
+        line.set_legend(line_pos="end")
+        assert line.adjust_legend_label_pos([]) is line

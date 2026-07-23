@@ -25,5 +25,6 @@ def line_by_quarter(ds: Dataset):
     line = Vizzy(fig, ax, ds).line(dim="DATE_REPORT_QUARTER", measure="# Client")
     line.set_theme()
     line.format_measure(fmt="#,")
+    line.set_mes_scale(n_step=6, std=0.08)
     line.show_data_label()
     return fig

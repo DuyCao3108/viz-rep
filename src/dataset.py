@@ -26,6 +26,7 @@ itself does.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -188,6 +189,33 @@ class Dataset:
     def set_measures(self, measures: list[Measure]) -> None:
         for measure in measures:
             self.add_measure(measure)
+
+    def read_schema(self, path: str | Path) -> None:
+        """Bulk-registers Dimension/Measure declarations from a JSON schema
+        file (see story/pcb_bank/etc/pbimodel_2_dataset.py for how one is
+        generated from a Power BI .tmdl model): {"dimensions": [...],
+        "measures": [...]}. A dimension entry with "transform" is a
+        calculated column (set_cal_col); otherwise it's a fmt-only
+        declaration for an already-auto-discovered source column — its
+        dtype ("date" vs "category", set in _discover_dimensions() from
+        DuckDB's own column type) is preserved rather than reset to the
+        Dimension dataclass default, since a fmt like "yy-qq" requires the
+        "date" dtype to render correctly. Measures need no reference-order
+        handling: "{other_measure}" cross-references are resolved lazily at
+        query() time, not at registration time."""
+        schema = json.loads(Path(path).read_text(encoding="utf-8"))
+        for entry in schema.get("dimensions", []):
+            name, fmt, transform = entry["name"], entry.get("fmt"), entry.get("transform")
+            if transform:
+                self.set_cal_col(Dimension(name=name, transform=transform, fmt=fmt))
+            else:
+                existing = self._dims.get(name)
+                dtype = existing.dtype if existing is not None else "category"
+                self.add_dimension(Dimension(name=name, dtype=dtype, fmt=fmt))
+        for entry in schema.get("measures", []):
+            self.add_measure(
+                Measure(name=entry["name"], formula=entry["formula"], fmt=entry.get("fmt"))
+            )
 
     def _resolve_dim(self, name: str) -> Dimension:
         if name not in self._dims:

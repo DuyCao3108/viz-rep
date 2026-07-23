@@ -1,7 +1,7 @@
 """PCB Bank CVM client — production run against the real parquet export.
 
 Loads v_pcb_cvm_client.parquet, layers the Power BI TMDL-derived measures/
-dimensions on top via Dataset.load_schema() (see etc/pbimodel_2_dataset.py
+dimensions on top via Dataset.read_schema() (see etc/pbimodel_2_dataset.py
 for how model_definition.json is generated), then renders every chart
 registered under plot/ (one file per topic, e.g. plot/client.py) to
 output/<topic>/<function_name>.png.
@@ -28,7 +28,7 @@ OUTPUT_DIR = HERE / "output"
 
 def main() -> None:
     ds = Dataset(DATA_DIR / "v_pcb_cvm_client.parquet")
-    ds.load_schema(DATA_DIR / "model_definition.json")
+    ds.read_schema(DATA_DIR / "model_definition.json")
 
     for topic, funcs in get_registered_plots().items():
         topic_dir = OUTPUT_DIR / topic

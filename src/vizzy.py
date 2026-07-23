@@ -7,6 +7,11 @@ directly."""
 
 from __future__ import annotations
 
+from typing import Literal
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 from src.dataset import Dataset
 from src.charts.base import get_shape_class
 from src.charts.bar import (
@@ -76,6 +81,79 @@ class Vizzy:
         chart = get_shape_class(shape)(fig=self.fig, ax=self.ax)
         chart.plot(results[0].categories, [r.values for r in results], results[0].legend_categories)
         return chart
+
+    @staticmethod
+    def small_multiple(
+        facet_vals: list,
+        plot_fn,
+        figsize: tuple[float, float] = (18, 6),
+        sharex: bool = True,
+        sharey: bool = True,
+        title: str | None = None,
+        legend_loc: Literal["bottom_left", "bottom_center"] = "bottom_left",
+    ):
+        """Generic facet-grid helper: builds one row of axes (one per
+        facet_vals entry), calls plot_fn(ax, facet_val) to let the caller do
+        the actual per-facet querying/styling, then consolidates one shared
+        fig-level legend (legend_loc="bottom_left": single column pinned to
+        the figure's bottom-left corner; "bottom_center": single row, one
+        column per legend entry, centered) and (if title given) a suptitle
+        aligned to the first facet's ax.set_title(loc='left') — not a
+        hardcoded x position, which drifts whenever layout params change."""
+        n = len(facet_vals)
+        fig, axes = plt.subplots(1, n, figsize=figsize, sharex=sharex, sharey=sharey)
+        axes_flat = list(np.atleast_1d(axes).flat)
+
+        for val, ax in zip(facet_vals, axes_flat):
+            plot_fn(ax, val)
+
+        handles, labels = axes_flat[0].get_legend_handles_labels()
+        for ax in axes_flat:
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.remove()
+
+        if legend_loc == "bottom_center":
+            fig_legend = fig.legend(
+                handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0), ncol=len(labels)
+            )
+        else:
+            fig_legend = fig.legend(handles, labels, loc="outside lower left", bbox_to_anchor=(0, 0))
+
+        # Placeholder suptitle (x corrected below) added BEFORE tight_layout()
+        # so tight_layout() reserves top-margin room for it — adding it after
+        # layout is finalized leaves no vertical room and it collides with
+        # ax[0]'s own title.
+        suptitle = fig.suptitle(title, x=0, ha="left") if title is not None else None
+
+        fig.tight_layout()
+        fig.subplots_adjust(left=0.16)
+
+        # Reserve bottom margin for the fig-level legend based on its actual
+        # rendered height — tight_layout() only accounts for axes content,
+        # not fig.legend(), and "bottom_center" (one row) vs. "bottom_left"
+        # (one column per label) occupy very different heights, so a fixed
+        # margin would be wrong for one of the two. Without this, the legend
+        # (anchored at fig y=0) sits underneath the axes with no guaranteed
+        # clearance and gets clipped unless the caller saves with
+        # bbox_inches="tight".
+        fig.canvas.draw()
+        legend_height = (
+            fig_legend.get_window_extent(fig.canvas.get_renderer())
+            .transformed(fig.transFigure.inverted())
+            .height
+        )
+        fig.subplots_adjust(bottom=legend_height + 0.04)
+
+        if suptitle is not None:
+            # x is corrected AFTER layout is finalized, since tight_layout()/
+            # subplots_adjust() are what determine ax[0]'s real left edge —
+            # this is the alignment fix (was hardcoded, drifted from ax[0]'s
+            # title position whenever layout params changed).
+            x0 = axes_flat[0].get_position().x0
+            suptitle.set_x(x0)
+
+        return fig, axes
 
     def _build(self, shape_name: str, dim: str, measure: str, legend, filters, sort_by=None):
         result = self.dataset.query(dim=dim, measure=measure, legend=legend,

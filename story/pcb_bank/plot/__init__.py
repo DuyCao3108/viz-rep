@@ -3,4 +3,6 @@ package-import time. Adding a new topic (new file in this dir) requires
 exactly one new line here — mirrors src/charts/__init__.py's pattern for
 chart shapes."""
 
+from plot import client
 from plot import pcb
+from plot import pcb_bar

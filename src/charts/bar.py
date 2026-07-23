@@ -102,7 +102,7 @@ class Bar:
         elif tone is not None:
             raise ValueError(f"Unknown tone {tone!r}. Expected one of: {Tone}")
 
-    def set_theme(self, pal: Pal = "cate-55", tone: Tone | None = "minimal") -> "Bar":
+    def set_theme(self, pal: Pal = "cate-30", tone: Tone | None = "minimal") -> "Bar":
         hex_color = get_theme_colors(pal)[0]
         for patch in self.bars.patches:
             patch.set_facecolor(hex_color)
@@ -416,7 +416,7 @@ class StackBar(Bar):
         )
 
     def set_theme(
-        self, pal: Pal = "cate-55", tone: Tone | None = "minimal"
+        self, pal: Pal = "cate-30", tone: Tone | None = "minimal"
     ) -> "StackBar":
         colors = get_theme_colors(pal)
         for j, container in enumerate(self.bars):

@@ -489,7 +489,7 @@ def validate_against_parquet(schema: dict) -> list[str]:
 
     failures: list[str] = []
     ds = Dataset(PARQUET_PATH)
-    ds.load_schema(OUTPUT_PATH)
+    ds.read_schema(OUTPUT_PATH)
     for entry in schema["measures"]:
         name = entry["name"]
         try:

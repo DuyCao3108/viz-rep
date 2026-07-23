@@ -112,7 +112,7 @@ def _smoothen_line(fig, ax):
     line = Vizzy(fig, ax, ds).line(dim="month", measure="amt_orders")
     line.set_theme()
     line.format_measure(fmt="#,K", dedup_fmt=True)
-    line.set_line_style(smooth=True)
+    line._set_line_style(smooth=True)
     line.show_data_label()
 
 

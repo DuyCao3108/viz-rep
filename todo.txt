@@ -1,3 +1,10 @@
+small change
+    change font to read easily
+    reduce ax size
+    sup title more notable
+
+    side: change to other measures to adjust scale
+
 testing
     can set on each unit
     multiple dataset for each type

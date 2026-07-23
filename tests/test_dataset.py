@@ -2,6 +2,8 @@
 ValueError, agg variants, sort_by ordering, calculated columns, cross-measure
 formulas."""
 
+import json
+
 import pytest
 
 from src.dataset import Dimension, Measure
@@ -132,3 +134,36 @@ def test_redeclaring_a_measure_invalidates_the_cache(orders_dataset):
     orders_dataset.add_measure(Measure("num_orders", "count(distinct order_id) * 2"))
     result = orders_dataset.query(dim="month", measure="num_orders")
     assert list(result.values.value) == [4.0, 6.0, 2.0]
+
+
+def test_read_schema_registers_dimensions_and_measures(orders_dataset, tmp_path):
+    schema = {
+        "dimensions": [
+            # fmt-only entry for an already-auto-discovered date column —
+            # dtype must stay "date" (not reset to the Dimension default
+            # "category"), or a downstream fmt like this would break.
+            {"name": "date", "fmt": "yyyy-mm"},
+            {"name": "is_apple", "transform": "CASE WHEN fruit = 'apple' THEN 1 ELSE 0 END"},
+        ],
+        "measures": [
+            # listed before the measure it references, proving read_schema
+            # needs no dependency ordering (resolution happens lazily at
+            # query() time, not at registration time).
+            {"name": "num_orders_x2_pct", "formula": "{num_orders_x2}/12"},
+            {"name": "num_orders_x2", "formula": "count(distinct order_id) * 2", "fmt": "#,"},
+        ],
+    }
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    orders_dataset.read_schema(schema_path)
+
+    assert orders_dataset._dims["date"].dtype == "date"
+    assert orders_dataset._dims["date"].fmt == "yyyy-mm"
+    assert orders_dataset._measures["num_orders_x2"].fmt == "#,"
+
+    result = orders_dataset.query(dim="is_apple", measure="num_orders_x2")
+    assert list(result.values.value) == [4.0, 8.0]
+
+    pct_result = orders_dataset.query(dim="is_apple", measure="num_orders_x2_pct")
+    assert list(pct_result.values.value) == pytest.approx([4 / 12, 8 / 12])

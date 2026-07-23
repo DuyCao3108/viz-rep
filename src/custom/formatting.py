@@ -15,10 +15,12 @@ from typing import Literal
 DataLabelFormat = Literal[
     "#", "#,", "#,K", "#,M", "#,B",
     "#.", "#.1", "#.2", "#.3",
-    "%.1", "%.2", "%.3",
+    "%.0", "%.1", "%.2", "%.3",
 ]
 
-DimensionFormat = Literal["yyyy", "yyyy-mm", "yyyy-mm-dd", "yy-mm", "yy-MM", "yy-qq"]
+DimensionFormat = Literal[
+    "yyyy", "yyyy-mm", "yyyy-mm-dd", "yy-mm", "yy-MM", "yy-qq", "yyyy-qq"
+]
 
 _SCALE_FACTORS: dict[str, float] = {"#,K": 1_000, "#,M": 1_000_000, "#,B": 1_000_000_000}
 _SCALE_LETTERS: dict[str, str] = {"#,K": "K", "#,M": "M", "#,B": "B"}
@@ -56,7 +58,7 @@ def render_value(
         precision = 0 if fmt == "#." else int(fmt[-1])
         return f"{value:.{precision}f}"
 
-    if fmt in ("%.1", "%.2", "%.3"):
+    if fmt in ("%.0", "%.1", "%.2", "%.3"):
         precision = int(fmt[-1])
         return f"{value * 100:.{precision}f}%"
 
@@ -97,5 +99,8 @@ def _format_dimension(value, fmt: DimensionFormat | None = None) -> str:
     if fmt == "yy-qq":
         quarter = (value.month - 1) // 3 + 1
         return f"{value.strftime('%y')}-Q{quarter}"
+    if fmt == "yyyy-qq":
+        quarter = (value.month - 1) // 3 + 1
+        return f"{value.strftime('%Y')}-Q{quarter}"
 
     raise ValueError(f"Unknown dimension fmt {fmt!r}. Expected one of: {DimensionFormat}")
