@@ -3,7 +3,7 @@
   "dimensions": [
     {
       "name": "DATE_REPORT_QUARTER",
-      "fmt": "yy-mm"
+      "fmt": "yy-qq"
     },
     {
       "name": "APPL_F_SIGNNC_XS",
