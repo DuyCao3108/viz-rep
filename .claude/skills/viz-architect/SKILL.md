@@ -68,3 +68,18 @@ Last updated: <date>
 
 4. Keep it terse — this is a resumable checkpoint, not a transcript. Update existing sections in place rather than appending duplicates; only add new `## Decisions` / `## Open questions` bullets for genuinely new items.
 5. Confirm to the user in 1-2 sentences what was saved and where.
+
+### Generate chart from pseudocode
+
+Trigger: the user gives a pseudocode-style chart description — dimension/measure names, a format token, "learn from `<existing function>`", desired title/legend labels, the same shape as a stub function's docstring (e.g. `story/pcb_bank/plot/quest_1.py`) — and asks to build it, or points at empty/stub plot functions like these.
+
+This is the one explicit exception to this skill's default "don't write implementation code" rule (see Approach, above) — this mode's whole job is producing working chart code, not describing a structure for the user to build.
+
+1. **Ground in the real schema before writing anything.** Find how the target `Dataset` is built for this project (e.g. `story/pcb_bank/main.py`'s `ds.read_schema(...)` call, pointing at `data/model_definition.json`) and read the real dimension/measure names from it. Fuzzy-match the pseudocode's loose column references against these — never invent or guess a name. If a term doesn't map unambiguously (typo, two plausible candidates, inconsistent naming between parts of the pseudocode), stop and ask instead of picking silently.
+2. **Find the closest existing plot function as a template**, matched on chart family + shape (e.g. "100% stacked bar" → `pcb_bar.stackbar_single`; "line chart" → `pcb.line_single`/`pcb.line_multi_3dim`). Read it in full before writing anything — new code follows its structure (fig/ax handling, `Vizzy(...)` call shape, theme/format/label call order), it doesn't invent a new pattern.
+3. **Confirm available chainable methods** against the actual chart class (`src/vizzy.py` + the relevant `src/charts/*.py`) rather than assuming an API surface — don't call a method that exists on `Bar` but not `Line`, or vice versa.
+4. **Generate the function**, following repo conventions: `@register_plot(topic)`, signature matching whether it stands alone (`(ds: Dataset)`) or composes into a shared figure another function builds (`(fig, ax, ds)`), reusing `Vizzy`/chart-class methods — never hand-rolling matplotlib a chart class already provides.
+5. **Wire it in** the same way existing topics are (add the import to `plot/__init__.py` if it's a new file).
+6. Report back what was grounded against what (which schema file, which template function) so the user can spot a bad match quickly — don't just silently hand back code.
+
+Out of scope for this mode (stays with `learn-vis-matplot`, or this skill's normal guidance mode): teaching raw matplotlib/numpy syntax, or a pseudocode request with no existing `Vizzy`/chart-class shape to match — that's a "new shape doesn't exist yet" conversation, not a codegen one.

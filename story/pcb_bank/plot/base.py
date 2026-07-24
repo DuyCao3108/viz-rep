@@ -15,6 +15,15 @@ def register_plot(topic: str):
 
     Registers under `topic`, keyed by the function's own name — main.py uses
     that name as the output filename: output/<topic>/<func_name>.png.
+
+    FIG_SIZE convention: a chart meant to stand alone (a single-image row in
+    an insight_outline.txt) should use FIG_SIZE width 16 (e.g. quest_1.py's
+    FIG_SIZE=(16, 8)). A chart meant for an n-way "|"-split outline row
+    should use width 16/n (e.g. quest_2_2.py/quest_2_3.py's
+    FIG_SIZE=(16/2, ...)) — keeps font/line proportions visually consistent
+    whether the chart is viewed standalone or side-by-side. Guidance only,
+    not enforced: FIG_SIZE is chosen before a plot function is even
+    registered, so this can't be checked here.
     """
     def decorator(func):
         topic_funcs = _PLOT_REGISTRY.setdefault(topic, {})

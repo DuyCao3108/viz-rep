@@ -461,7 +461,7 @@ class StackBar100(StackBar):
     a percent of its bar's total — DEFAULT_PCT_FMT is the fallback precision
     when no Measure.fmt="%.x" was declared."""
 
-    DEFAULT_PCT_FMT: DataLabelFormat = "%.1"
+    DEFAULT_PCT_FMT: DataLabelFormat = "%.0"
 
     def _resolve_pct_fmt(self) -> DataLabelFormat | None:
         return super()._resolve_pct_fmt() or self.DEFAULT_PCT_FMT

@@ -352,7 +352,7 @@ class Line:
                 + "; ".join(repr(ap) for ap in unmatched)
             )
 
-    def show_data_label(self, adjust_pos: list[AdjustPos] | None = None) -> None:
+    def show_data_label(self, fontsize: int = None, adjust_pos: list[AdjustPos] | None = None) -> None:
         if adjust_pos:
             self._validate_adjust_pos(adjust_pos)
         x = np.arange(len(self._dim_display_vals))
@@ -371,7 +371,7 @@ class Line:
                         pad_v, pad_h = match.pad_v, match.pad_h
                 self.ax.annotate(
                     dv, xy=(xi, rv), xytext=(pad_h, 8 + pad_v), textcoords="offset points",
-                    ha="center", va="bottom", fontsize=9, color='black',
+                    ha="center", va="bottom", color='black',
                 )
 
     def _hide_spines(self) -> None:

@@ -4,3 +4,4 @@ __pycache__/
 .venv/
 venv/
 tests/gallery/output/
+story/pcb_bank/data/.cache/

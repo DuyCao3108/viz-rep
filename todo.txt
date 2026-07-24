@@ -1,15 +1,13 @@
-small change
-    change font to read easily
-    reduce ax size
-    sup title more notable
 
-    side: change to other measures to adjust scale
+auto
+    4 chart template
+        line
+        line multi
+        stackbar
+        stackbar multi
 
-testing
-    can set on each unit
-    multiple dataset for each type
-        <5 dim
-        5,10 dim
+adjust
+    change measure/legend naming
 
 
 todo

@@ -1,13 +1,13 @@
 pyproject.toml
 src/__init__.py
-src/colors.py
 src/dataset.py
-src/fonts.py
-src/styles.py
 src/vizzy.py
+tests/test_charts_bar.py
+tests/test_charts_line.py
 tests/test_charts_registry.py
 tests/test_colors.py
 tests/test_dataset.py
+tests/test_formatting.py
 viz.egg-info/PKG-INFO
 viz.egg-info/SOURCES.txt
 viz.egg-info/dependency_links.txt

@@ -1,4 +1,8 @@
 polars
+duckdb
+scipy
+openpyxl
+pillow
 
 [dev]
 pytest

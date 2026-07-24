@@ -1,0 +1,9 @@
+- Overview of active PCB client
+    ○ story/pcb_bank/output/quest_1/quest1_multi_ax.png
+    ○ story/pcb_bank/output/quest_1_xsel/quest_1_xsel.png
+- Multi-lenders, especially with BANK, are significantly more Digital
+    ○ story/pcb_bank/output/quest_2_1/quest2_1.png | BLANK
+    ○ story/pcb_bank/output/quest_2_2/quest2_2_1.png | story/pcb_bank/output/quest_2_2/quest2_2_2.png
+    ○ story/pcb_bank/output/quest_2_3/quest2_3_1.png | story/pcb_bank/output/quest_2_3/quest2_3_2.png
+- This behavior can be explained by two hypotheses:
+    ○ BLANK

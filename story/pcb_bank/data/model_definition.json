@@ -3,11 +3,19 @@
   "dimensions": [
     {
       "name": "DATE_REPORT_QUARTER",
-      "fmt": "yyyy-qq"
+      "fmt": "yy-qq"
     },
     {
       "name": "APPL_F_SIGNNC_XS",
       "transform": "CASE WHEN (\"APPL_F_SIGNNC_CLX\" = 1 OR \"APPL_F_SIGNNC_CCX\" = 1) THEN 1 ELSE 0 END"
+    },
+    {
+      "name": "F_ACT_PCB_XS",
+      "transform": "CASE WHEN (\"PCB_ACT_PROD_GR\" = '4. Inactive pcb') THEN '2. Non-Active PCB (CL/CC)' ELSE '1. Active PCB (CL/CC)' END"
+    },
+    {
+      "name": "HIST_PROD_XS_GR",
+      "transform": "CASE WHEN (\"HIST_PROD_GR\" = '2. Has CC & CL') THEN '1. Cash & Card' WHEN (\"HIST_PROD_GR\" = '3. Has CL (wo CC)') THEN '2. Cash only' WHEN (\"HIST_PROD_GR\" = '4. Has CC (wo CL)') THEN '3. Card only' ELSE '4. Others' END"
     }
   ],
   "measures": [

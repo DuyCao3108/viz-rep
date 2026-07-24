@@ -42,20 +42,68 @@ COLOR_DICTS: dict[str, dict] = {
     "hcvn-red2": {"code": "#A0153E"},
     "hcvn-red3": {"code": "#5D0E41"},
     "hcvn-dark-grey": {"code": "#00224D"},
+    # bar
+    "bar1": {"code": "#121358"},
+    "bar2": {"code": "#232F72"},
+    "bar3": {"code": "#2F578A"},
+    "bar4": {"code": "#36ADA3"},
+    # tableau
+    "tab1": {"code": "#C81D25"},
+    "tab2": {"code": "#FF5A5F"},
+    "tab3": {"code": "#381859"},
+    "tab4": {"code": "#087E8D"},
+    "tab5": {"code": "#0B3954"},
+    # PowerBI Default by Ken Flerlage
+    "verditer": {"code": "#01B8AA"},
+    "gale-force": {"code": "#374649"},
+    "pineapple-salmon": {"code": "#FD625E"},
+    "egg-toast": {"code": "#F2C80F"},
+    "king-creek-falls": {"code": "#5F6B6D"},
+    "anakiwa": {"code": "#8AD4EB"},
+    "atomic-tangerine": {"code": "#FE9666"},
+    "iris-orchid": {"code": "#A66999"},
+    "sports-blue": {"code": "#3599B8"},
+    "soft-blush": {"code": "#DFBDBF"},
+    # GoodDashBoard by Anil Sidhwani
+    "smudged-lips": {"code": "#EE4266"},
+    "lamplight": {"code": "#FFD23F"},
+    "resonant-blue": {"code": "#00A5CF"},
+    "jadeite": {"code": "#3BCEAC"},
+    "secret-garden": {"code": "#0EAD69"},
+    "god-of-nights": {"code": "#540D6E"},
 }
 
 Pal = Literal[
     "cate-55",
     "cate-30",
+    "cate-25",
     "gradient2-blue",
     "gradient2-red",
     "diverse-blue-mint",
     "diverse-red-mint",
     "step5-red",
     "step5-blue",
+    "bar",
+    "tab",
+    "powerbi",
+    "powerbi-2",
+    "gooddashboard",
 ]
 
 COLOR_THEMES: dict[str, list[str]] = {
+    "tab": [
+        "tab1",
+        "tab2",
+        "tab3",
+        "tab4",
+        "tab5",
+    ],
+    "bar": [
+        "bar1",
+        "bar2",
+        "bar3",
+        "bar4",
+    ],
     "cate-55": [
         "chicago-55",
         "yellow-55",
@@ -72,6 +120,14 @@ COLOR_THEMES: dict[str, list[str]] = {
         "mint-40",
         "hcvn-dark-grey-40"
     ],
+    "cate-25": [
+        "chicago-35",
+        "hcvn-red2-35",
+        "yellow-35",
+        'hong-kong-35',
+        "mint-35",
+        "hcvn-dark-grey-35"
+    ],
     "cate-55-old": [
         "chicago-20",
         "chicago-50",
@@ -85,8 +141,8 @@ COLOR_THEMES: dict[str, list[str]] = {
         "dark-pink",
     ],
     "step5-blue": [
-        "chicago-20",
         "chicago-50",
+        "chicago-20",
         "chicago-80",
         "hong-kong-30",
     ],
@@ -100,6 +156,40 @@ COLOR_THEMES: dict[str, list[str]] = {
     "gradient2-red": ["tokyo-45", "tokyo-90"],
     "diverse-blue-mint": ["chicago-30", "hong-kong-45"],
     "diverse-red-mint": ["tokyo-45", "hong-kong-45"],
+    "powerbi": [
+        "verditer-35",
+        "gale-force",
+        "pineapple-salmon-40",
+        "hcvn-dark-grey",
+        # "chicago-55",
+        "iris-orchid-40",
+        "egg-toast-40",
+        "king-creek-falls-40",
+        "atomic-tangerine-40",
+        "sports-blue-40",
+        "soft-blush-40",
+    ],
+    "powerbi-2": [
+        "chicago-30",
+        "verditer-35",
+        "egg-toast-40",
+        "gale-force",
+        "iris-orchid-40",
+        "king-creek-falls-40",
+        "pineapple-salmon-40",
+        "hcvn-dark-grey",
+        "atomic-tangerine-40",
+        "sports-blue-40",
+        "soft-blush-40",
+    ],
+    "gooddashboard": [
+        "smudged-lips",
+        "lamplight",
+        "resonant-blue",
+        "jadeite",
+        "secret-garden",
+        "god-of-nights",
+    ],
 }
 
 

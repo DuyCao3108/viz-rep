@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live PNG Viewer</title>
+<style>
+  html, body { height: 100%; margin: 0; background: #1e1e1e; color: #ddd; font-family: sans-serif; }
+  #bar { padding: 6px 10px; font-size: 13px; background: #111; }
+  #wrap { display: flex; align-items: center; justify-content: center; height: calc(100% - 32px); }
+  img { max-width: 98%; max-height: 98%; box-shadow: 0 0 12px rgba(0,0,0,0.6); background: #fff; }
+  #status { float: right; }
+</style>
+</head>
+<body>
+<div id="bar">
+  watching: <span id="path"></span>
+  <span id="status">idle</span>
+</div>
+<div id="wrap"><img id="shot" alt="waiting for image..."></div>
+
+<script>
+  // usage: live_view.html?img=relative/path/from/server/root.png&interval=500
+  const params = new URLSearchParams(location.search);
+  const rawPath = params.get("img") || "image.png";
+  // img= is always relative to the server root, regardless of where this
+  // page itself lives (e.g. tools/live_view/) — force it absolute.
+  const path = rawPath.startsWith("/") ? rawPath : "/" + rawPath;
+  const interval = parseInt(params.get("interval") || "500", 10);
+
+  document.getElementById("path").textContent = path;
+  const img = document.getElementById("shot");
+  const status = document.getElementById("status");
+  let lastKey = null;
+  let lastUrl = null;
+
+  async function tick() {
+    try {
+      const res = await fetch(path, { cache: "no-store" });
+      if (!res.ok) {
+        status.textContent = "error: HTTP " + res.status;
+        return;
+      }
+      const len = res.headers.get("content-length");
+      const mod = res.headers.get("last-modified");
+      const key = len + "|" + mod;
+      if (key !== lastKey) {
+        lastKey = key;
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        lastUrl = url;
+        img.src = url;
+        status.textContent = "updated " + new Date().toLocaleTimeString();
+      } else {
+        status.textContent = "watching (no change)";
+      }
+    } catch (e) {
+      status.textContent = "error: " + e.message;
+    }
+  }
+
+  tick();
+  setInterval(tick, interval);
+</script>
+</body>
+</html>

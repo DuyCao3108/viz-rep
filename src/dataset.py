@@ -42,6 +42,7 @@ PbiComponents = Literal["dim", "mes", "legend"]
 SortOptions = Literal["asc", "desc"]
 
 _MEASURE_REF_RE = re.compile(r"\{([^{}]+)\}")
+_COLUMN_REF_RE = re.compile(r'"([^"]+)"')
 _DATE_TYPE_PREFIXES = ("DATE", "TIMESTAMP")
 
 
@@ -116,6 +117,7 @@ class Dataset:
         path: str | Path,
         threads: int | None = None,
         memory_limit: str | None = None,
+        cache_path: str | Path | None = None,
     ) -> None:
         """Loads exactly one parquet file — nothing else. Every column
         becomes a dimension automatically (see _discover_dimensions());
@@ -126,9 +128,22 @@ class Dataset:
         `threads`/`memory_limit` are optional DuckDB connection tuning
         knobs (PRAGMA threads / memory_limit) — left unset by default so
         behavior matches DuckDB's own defaults; set them explicitly if a
-        production deployment needs a pinned thread count or a memory cap."""
+        production deployment needs a pinned thread count or a memory cap.
+
+        `cache_path`, if set, persists the materialized `_base` table (see
+        _materialize()) to a DuckDB database file on disk instead of
+        `:memory:`, so repeat process invocations against an unchanged
+        source parquet skip re-decoding it entirely — see _materialize()'s
+        fingerprint check for the invalidation rule."""
         self.path = Path(path)
-        self._con = duckdb.connect()
+        self._cache_path = Path(cache_path) if cache_path is not None else None
+        if self._cache_path is not None:
+            self._cache_path.parent.mkdir(parents=True, exist_ok=True)
+        self._con = (
+            duckdb.connect(str(self._cache_path))
+            if self._cache_path is not None
+            else duckdb.connect()
+        )
         if threads is not None:
             self._con.sql(f"PRAGMA threads={int(threads)}")
         if memory_limit is not None:
@@ -139,6 +154,7 @@ class Dataset:
 
         # Import-mode materialization state — see _materialize()/_source_sql().
         self._materialized = False
+        self._materialize_columns: set[str] | None = None
         self._query_cache: dict[tuple, QueryResult] = {}
 
         # Scratch state for the in-flight query() call — see query().
@@ -167,6 +183,7 @@ class Dataset:
             self._dims[column_name] = Dimension(
                 name=column_name, column=column_name, dtype=dtype
             )
+        self._discovered_columns: set[str] = set(self._dims)
 
     def add_dimension(self, dim: Dimension) -> None:
         self._dims[dim.name] = dim
@@ -190,7 +207,12 @@ class Dataset:
         for measure in measures:
             self.add_measure(measure)
 
-    def read_schema(self, path: str | Path) -> None:
+    def read_schema(
+        self,
+        path: str | Path,
+        prune: bool = False,
+        extra_columns: tuple[str, ...] = (),
+    ) -> None:
         """Bulk-registers Dimension/Measure declarations from a JSON schema
         file (see story/pcb_bank/etc/pbimodel_2_dataset.py for how one is
         generated from a Power BI .tmdl model): {"dimensions": [...],
@@ -202,7 +224,15 @@ class Dataset:
         Dimension dataclass default, since a fmt like "yy-qq" requires the
         "date" dtype to render correctly. Measures need no reference-order
         handling: "{other_measure}" cross-references are resolved lazily at
-        query() time, not at registration time."""
+        query() time, not at registration time.
+
+        `prune=True` narrows _materialize()'s decode to only the source
+        columns actually referenced by this schema's measure formulas and
+        calculated-dimension transforms (plus `extra_columns`, for any raw
+        column a caller queries directly by name without declaring it in
+        the schema — e.g. a facet/legend dim used only from chart code).
+        Off by default so behavior is unchanged (full `SELECT *`) for every
+        caller that doesn't opt in."""
         schema = json.loads(Path(path).read_text(encoding="utf-8"))
         for entry in schema.get("dimensions", []):
             name, fmt, transform = entry["name"], entry.get("fmt"), entry.get("transform")
@@ -216,6 +246,18 @@ class Dataset:
             self.add_measure(
                 Measure(name=entry["name"], formula=entry["formula"], fmt=entry.get("fmt"))
             )
+
+        if prune:
+            referenced: set[str] = set(extra_columns)
+            for entry in schema.get("dimensions", []):
+                transform = entry.get("transform")
+                if transform:
+                    referenced |= set(_COLUMN_REF_RE.findall(transform))
+                else:
+                    referenced.add(entry["name"])
+            for measure in self._measures.values():
+                referenced |= set(_COLUMN_REF_RE.findall(self._resolve_formula(measure)))
+            self._materialize_columns = referenced & self._discovered_columns
 
     def _resolve_dim(self, name: str) -> Dimension:
         if name not in self._dims:
@@ -248,16 +290,69 @@ class Dataset:
 
         return _MEASURE_REF_RE.sub(_substitute, measure.formula)
 
+    def _cache_fingerprint(self) -> str | None:
+        """Identifies the exact (source file, column projection) combo this
+        `_base` table would be built from, so a persistent cache_path db
+        can tell "still fresh" apart from "source file or pruning changed,
+        rebuild." None when there's no cache_path (nothing to fingerprint)."""
+        if self._cache_path is None:
+            return None
+        stat = self.path.stat()
+        columns = (
+            "ALL"
+            if self._materialize_columns is None
+            else ",".join(sorted(self._materialize_columns))
+        )
+        return f"{self.path.resolve()}|{stat.st_mtime_ns}|{stat.st_size}|{columns}"
+
+    def _cache_is_fresh(self, fingerprint: str) -> bool:
+        tables = {
+            row[0]
+            for row in self._con.sql(
+                "SELECT table_name FROM information_schema.tables "
+                "WHERE table_name IN ('_base', '_meta')"
+            ).fetchall()
+        }
+        if not {"_base", "_meta"} <= tables:
+            return False
+        row = self._con.execute(
+            "SELECT value FROM _meta WHERE key = 'fingerprint'"
+        ).fetchone()
+        return row is not None and row[0] == fingerprint
+
+    def _write_cache_fingerprint(self, fingerprint: str) -> None:
+        self._con.execute("CREATE TABLE IF NOT EXISTS _meta (key VARCHAR, value VARCHAR)")
+        self._con.execute("DELETE FROM _meta WHERE key = 'fingerprint'")
+        self._con.execute("INSERT INTO _meta VALUES ('fingerprint', ?)", [fingerprint])
+
     def _materialize(self) -> None:
-        """Loads the parquet file into a native in-memory DuckDB table once
-        (import mode), so every query() after the first scans a fast
-        in-memory columnar table instead of re-decoding the parquet file
-        from disk each call. Idempotent — safe to call on every query()."""
+        """Loads the parquet file into a native DuckDB table once (import
+        mode), so every query() after the first scans a fast in-memory
+        columnar table instead of re-decoding the parquet file from disk
+        each call. Idempotent — safe to call on every query().
+
+        If `cache_path` was set on __init__, the table lives in that
+        persistent DuckDB file instead of `:memory:`, and a fingerprint
+        (source path + mtime + size + pruned-column-set) is checked first —
+        an unchanged source/projection lets a *new* process instance reuse
+        the table already on disk and skip the decode entirely."""
         if self._materialized:
             return
-        self._con.sql(
-            f"CREATE OR REPLACE TABLE _base AS SELECT * FROM read_parquet('{self._escaped_path()}')"
+        fingerprint = self._cache_fingerprint()
+        if fingerprint is not None and self._cache_is_fresh(fingerprint):
+            self._materialized = True
+            return
+        columns_sql = (
+            "*"
+            if self._materialize_columns is None
+            else ", ".join(f'"{c}"' for c in sorted(self._materialize_columns))
         )
+        self._con.sql(
+            f"CREATE OR REPLACE TABLE _base AS SELECT {columns_sql} "
+            f"FROM read_parquet('{self._escaped_path()}')"
+        )
+        if fingerprint is not None:
+            self._write_cache_fingerprint(fingerprint)
         self._materialized = True
 
     def _source_sql(self) -> str:
